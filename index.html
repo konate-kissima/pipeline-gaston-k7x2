@@ -1702,6 +1702,7 @@
 </script>
 
 
+
 <style>
 #todo-btn{position:fixed;left:10px;bottom:10px;z-index:60;font:600 13px 'IBM Plex Sans',sans-serif;padding:9px 14px;border:0;border-radius:999px;background:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow);cursor:pointer}
 #todo-pn{position:fixed;left:10px;bottom:54px;z-index:61;width:min(420px,calc(100vw - 20px));max-height:70vh;overflow:auto;box-sizing:border-box;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
@@ -1719,12 +1720,13 @@
 <div id="todo-pn" hidden></div>
 <script>
 (function(){
-  var btn=document.getElementById("todo-btn"), pn=document.getElementById("todo-pn"), data=null, open=/[?&]todo=1/.test(location.search), msg="";
+  var btn=document.getElementById("todo-btn"), pn=document.getElementById("todo-pn"), data=null, mails=[], open=/[?&]todo=1/.test(location.search), msg="";
   function el(tag,cls,txt){var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e;}
   function mk(label,fn,primary){var b=el("button","a"+(primary?" p":""),label); b.onclick=async function(){b.disabled=true; try{await fn();}catch(e){msg="Erreur : "+(e.message||e);} await load();}; return b;}
   async function rpc(n,a){var r=await window.__SB.rpc(n,a||{}); if(r.error) throw r.error; return r.data;}
   function render(){
-    var n=(data?data.transcripts.length+data.stops.length:0);
+    var mr=mails.filter(function(m){return m.etat==="a_repondre"||(m.etat==="attente"&&!m.brouillon&&m.jours>=3);});
+    var n=(data?data.transcripts.length+data.stops.length:0)+mr.length;
     btn.hidden=!(n>0||open&&data); btn.textContent="À traiter ("+n+")";
     pn.hidden=!open||!data; if(pn.hidden) return;
     pn.textContent=""; pn.appendChild(el("h3",null,"À traiter"));
@@ -1751,11 +1753,21 @@
       row.appendChild(mk("↩️ Garder tel quel",function(){return rpc("todo_stop_decision",{pid:p.id,decision:"keep"});}));
       it.appendChild(row); pn.appendChild(it);
     });
+    if(mails.length){
+      pn.appendChild(el("h3",null,"✉️ Mails ("+mails.length+")"));
+      mails.forEach(function(m){
+        var rep=m.etat==="a_repondre";
+        var it=el("div","it"); it.appendChild(el("div","t",(rep?"🔴 À répondre : ":"⏳ Sans réponse ("+m.jours+" j, relance "+(m.rang+1)+") : ")+m.nom));
+        it.appendChild(el("div","s",(m.objet||"")+" · "+(m.brouillon?"brouillon prêt dans Gmail":(rep?"réponse en préparation":"relance à venir"))+(m.tel?" · "+m.tel:"")));
+        pn.appendChild(it);
+      });
+    }
     var c=el("button","a","Fermer"); c.style.marginTop="8px"; c.onclick=function(){open=false;render();}; pn.appendChild(c);
   }
   async function load(){
     try{ var s=await window.__SB.auth.getSession(); if(!s.data.session){btn.hidden=true;pn.hidden=true;return;}
       data=await rpc("todo_list"); if(!msg||true){} }catch(e){ return; }
+    try{ mails=await rpc("todo_mails")||[]; }catch(e){ mails=[]; }
     render(); msg="";
   }
   btn.onclick=function(){open=!open; render();};

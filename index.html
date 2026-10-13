@@ -701,7 +701,7 @@
 <button id="btn-logout" hidden>Déconnexion</button>
 <script>
 (function(){
-  var SB = supabase.createClient("https://tsgiijsgghkarawbbhqu.supabase.co","sb_publishable_20MUEHfBs_kSiOe5xPIOsw_3BmPniT_");
+  var SB = supabase.createClient("https://tsgiijsgghkarawbbhqu.supabase.co","sb_publishable_20MUEHfBs_kSiOe5xPIOsw_3BmPniT_"); window.__SB = SB;
   var COLS = ["full_name","phone","email","email2","region","closeur","terrain","deja_investi","objectif","budget","timeline","type_bien","status","date_rappel","date_rappel_precise","heure_rappel","nb_tentatives","date_arrivee","date_dernier_appel","heure_dernier_appel","source","notes","montage_financier","devis","montant","banque","permis","livraison","jalon1","jalon2"];
   var KNOWN = {}; COLS.forEach(function(c){KNOWN[c]=1;}); KNOWN.id=1; KNOWN.order=1; KNOWN.relances=1;
   function fromRow(r){
@@ -1702,4 +1702,65 @@
 </script>
 
 
+<style>
+#todo-btn{position:fixed;left:10px;bottom:10px;z-index:60;font:600 13px 'IBM Plex Sans',sans-serif;padding:9px 14px;border:0;border-radius:999px;background:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow);cursor:pointer}
+#todo-pn{position:fixed;left:10px;bottom:54px;z-index:61;width:min(420px,calc(100vw - 20px));max-height:70vh;overflow:auto;box-sizing:border-box;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+#todo-pn h3{margin:0 0 8px;font-family:'Fraunces',serif;font-size:16px}
+#todo-pn .it{border-top:1px solid var(--border);padding:10px 0}
+#todo-pn .t{font-weight:600;font-size:13px;margin-bottom:4px}
+#todo-pn .s{font-size:12px;color:var(--ink-3);margin-bottom:8px;white-space:pre-wrap}
+#todo-pn .row{display:flex;flex-wrap:wrap;gap:6px}
+#todo-pn button.a{font:inherit;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer}
+#todo-pn button.a.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#todo-pn input{font:inherit;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--ink);width:150px;max-width:100%;box-sizing:border-box}
+#todo-pn .e{color:var(--st-perdu);font-size:12px}
+</style>
+<button id="todo-btn" hidden></button>
+<div id="todo-pn" hidden></div>
+<script>
+(function(){
+  var btn=document.getElementById("todo-btn"), pn=document.getElementById("todo-pn"), data=null, open=/[?&]todo=1/.test(location.search), msg="";
+  function el(tag,cls,txt){var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e;}
+  function mk(label,fn,primary){var b=el("button","a"+(primary?" p":""),label); b.onclick=async function(){b.disabled=true; try{await fn();}catch(e){msg="Erreur : "+(e.message||e);} await load();}; return b;}
+  async function rpc(n,a){var r=await window.__SB.rpc(n,a||{}); if(r.error) throw r.error; return r.data;}
+  function render(){
+    var n=(data?data.transcripts.length+data.stops.length:0);
+    btn.hidden=!(n>0||open&&data); btn.textContent="À traiter ("+n+")";
+    pn.hidden=!open||!data; if(pn.hidden) return;
+    pn.textContent=""; pn.appendChild(el("h3",null,"À traiter"));
+    if(msg) pn.appendChild(el("div","e",msg));
+    if(!n) pn.appendChild(el("div","s","Rien en attente."));
+    data.transcripts.forEach(function(t){
+      var it=el("div","it"); it.appendChild(el("div","t","📞 Transcript « "+(t.subject||"")+" » : de quel prospect s'agit-il ?"));
+      it.appendChild(el("div","s",t.summary||""));
+      var row=el("div","row");
+      (t.candidates||[]).forEach(function(c){row.appendChild(mk("✅ "+c.name,function(){return rpc("todo_resolve_transcript",{tid:t.id,pid:c.id});},true));});
+      row.appendChild(mk("🚫 Ignorer",function(){return rpc("todo_ignore_transcript",{tid:t.id});}));
+      it.appendChild(row);
+      var sr=el("div","row"); sr.style.marginTop="8px"; var inp=el("input"); inp.placeholder="Chercher un autre nom…"; sr.appendChild(inp);
+      var res=el("div","row"); res.style.marginTop="6px";
+      inp.oninput=async function(){res.textContent=""; if(inp.value.trim().length<2) return; try{var found=await rpc("todo_search",{q:inp.value}); found.forEach(function(c){res.appendChild(mk("✅ "+c.name,function(){return rpc("todo_resolve_transcript",{tid:t.id,pid:c.id});}));});}catch(e){}};
+      it.appendChild(sr); it.appendChild(res); pn.appendChild(it);
+    });
+    data.stops.forEach(function(p){
+      var it=el("div","it"); it.appendChild(el("div","t","⚠️ "+p.name+" semble vouloir arrêter (statut : "+(p.status||"—")+")"));
+      it.appendChild(el("div","s",p.note||""));
+      var row=el("div","row");
+      row.appendChild(mk("❌ Perdu",function(){return rpc("todo_stop_decision",{pid:p.id,decision:"perdu"});},true));
+      row.appendChild(mk("⏸ En suspens",function(){return rpc("todo_stop_decision",{pid:p.id,decision:"susp"});}));
+      row.appendChild(mk("↩️ Garder tel quel",function(){return rpc("todo_stop_decision",{pid:p.id,decision:"keep"});}));
+      it.appendChild(row); pn.appendChild(it);
+    });
+    var c=el("button","a","Fermer"); c.style.marginTop="8px"; c.onclick=function(){open=false;render();}; pn.appendChild(c);
+  }
+  async function load(){
+    try{ var s=await window.__SB.auth.getSession(); if(!s.data.session){btn.hidden=true;pn.hidden=true;return;}
+      data=await rpc("todo_list"); if(!msg||true){} }catch(e){ return; }
+    render(); msg="";
+  }
+  btn.onclick=function(){open=!open; render();};
+  setTimeout(load,1500); setInterval(load,30000);
+  window.__SB && window.__SB.auth.onAuthStateChange(function(){setTimeout(load,500);});
+})();
+</script>
 </body></html>

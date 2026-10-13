@@ -1758,7 +1758,7 @@
       mails.forEach(function(m){
         var rep=m.etat==="a_repondre";
         var it=el("div","it"); it.appendChild(el("div","t",(rep?"🔴 À répondre : ":"⏳ Sans réponse ("+m.jours+" j, relance "+(m.rang+1)+") : ")+m.nom));
-        it.appendChild(el("div","s",(m.objet||"")+" · "+(m.brouillon?"brouillon prêt dans Gmail":(rep?"réponse en préparation":"relance à venir"))+(m.tel?" · "+m.tel:"")));
+        it.appendChild(el("div","s",(m.objet||"")+" · "+(m.brouillon?"brouillon prêt dans Gmail":(rep?"réponse en préparation":"relance à venir"))+(m.statut==="Perdu"&&rep?" · ⚠️ statut Perdu : à traiter par toi":"")+(m.tel?" · "+m.tel:"")));
         pn.appendChild(it);
       });
     }

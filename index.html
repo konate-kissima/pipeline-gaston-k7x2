@@ -1,0 +1,1705 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Pipeline Tiny House</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F3EC;
+    --surface:#FFFFFF;
+    --surface-2:#EEE8D9;
+    --border:#DED3B9;
+    --ink:#211C14;
+    --ink-2:#6E6252;
+    --ink-3:#948970;
+    --accent:#234B3E;
+    --accent-strong:#153229;
+    --accent-soft:#E3EDE7;
+    --accent-ink:#F4F8F5;
+    --st-contacter:#3B5B82;
+    --st-contacter-soft:#E6EDF5;
+    --st-rappel:#A0700F;
+    --st-rappel-soft:#F6EAD1;
+    --st-devis:#5B5FC7;
+    --st-devis-soft:#E8E8F7;
+    --st-closing:#0E7C6E;
+    --st-closing-soft:#DFF0EC;
+    --st-vente:#1F7A3D;
+    --st-vente-soft:#DFF3E3;
+    --st-admin:#6B6354;
+    --st-admin-soft:#ECE7DA;
+    --st-suspens:#77638B;
+    --st-suspens-soft:#EEE8F3;
+    --st-perdu:#8B4A3E;
+    --st-perdu-soft:#F3E3DF;
+    --shadow: 0 1px 2px rgba(33,28,20,0.06), 0 8px 24px -12px rgba(33,28,20,0.18);
+    --radius: 14px;
+    color-scheme: light dark;
+    --chart-1:#2a78d6;
+    --chart-2:#eb6834;
+    --chart-3:#1baf7a;
+    --chart-4:#eda100;
+    --chart-5:#e87ba4;
+    --chart-6:#008300;
+    --chart-7:#4a3aa7;
+    --chart-8:#e34948;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#181510;
+      --surface:#211D16;
+      --surface-2:#2A251C;
+      --border:#3B3527;
+      --ink:#F1ECE0;
+      --ink-2:#B7AB92;
+      --ink-3:#867A62;
+      --accent:#7FBBA3;
+      --accent-strong:#9BCDB8;
+      --accent-soft:#25352E;
+      --accent-ink:#0F1E17;
+      --st-contacter:#8FB3DA;
+      --st-contacter-soft:#22303F;
+      --st-rappel:#E0AE55;
+      --st-rappel-soft:#3B3121;
+      --st-devis:#A6A8ED;
+      --st-devis-soft:#2C2D46;
+      --st-closing:#5FCBB8;
+      --st-closing-soft:#1E3733;
+      --st-vente:#7FD99B;
+      --st-vente-soft:#1C3524;
+      --st-admin:#C9C2AE;
+      --st-admin-soft:#34301F;
+      --st-suspens:#C0AAD8;
+      --st-suspens-soft:#302A3B;
+      --st-perdu:#E19A8A;
+      --st-perdu-soft:#3B2621;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+      --chart-1:#3987e5;
+      --chart-2:#d95926;
+      --chart-3:#199e70;
+      --chart-4:#c98500;
+      --chart-5:#d55181;
+      --chart-6:#008300;
+      --chart-7:#9085e9;
+      --chart-8:#e66767;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#181510;
+    --surface:#211D16;
+    --surface-2:#2A251C;
+    --border:#3B3527;
+    --ink:#F1ECE0;
+    --ink-2:#B7AB92;
+    --ink-3:#867A62;
+    --accent:#7FBBA3;
+    --accent-strong:#9BCDB8;
+    --accent-soft:#25352E;
+    --accent-ink:#0F1E17;
+    --st-contacter:#8FB3DA;
+    --st-contacter-soft:#22303F;
+    --st-rappel:#E0AE55;
+    --st-rappel-soft:#3B3121;
+    --st-devis:#A6A8ED;
+    --st-devis-soft:#2C2D46;
+    --st-closing:#5FCBB8;
+    --st-closing-soft:#1E3733;
+    --st-vente:#7FD99B;
+    --st-vente-soft:#1C3524;
+    --st-admin:#C9C2AE;
+    --st-admin-soft:#34301F;
+    --st-suspens:#C0AAD8;
+    --st-suspens-soft:#302A3B;
+    --st-perdu:#E19A8A;
+    --st-perdu-soft:#3B2621;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    --chart-1:#3987e5;
+    --chart-2:#d95926;
+    --chart-3:#199e70;
+    --chart-4:#c98500;
+    --chart-5:#d55181;
+    --chart-6:#008300;
+    --chart-7:#9085e9;
+    --chart-8:#e66767;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    padding-inline:20px;
+    padding-block:20px 64px;
+  }
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;text-wrap:balance;margin:0;}
+  .num{font-family:"IBM Plex Mono","SF Mono",monospace;font-variant-numeric:tabular-nums;}
+  a{color:var(--accent);}
+  button{font:inherit;}
+
+  .wrap{max-width:1180px;margin:0 auto;}
+
+  /* ---------- header ---------- */
+  header.top{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:24px;
+  }
+  .brand-eyebrow{
+    font-size:12.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-3); font-weight:600; margin-bottom:6px;
+  }
+  header.top h1{font-size:clamp(26px,3.4vw,34px); font-weight:600; color:var(--ink);}
+  header.top p.sub{margin:6px 0 0; color:var(--ink-2); font-size:14.5px; max-width:46ch;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    border-radius:10px; border:1px solid transparent; cursor:pointer;
+    padding:10px 16px; font-size:14.5px; font-weight:600;
+    transition:transform .08s ease, background .15s ease, border-color .15s ease;
+    white-space:nowrap;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent); color:var(--accent-ink);}
+  .btn-primary:hover{background:var(--accent-strong);}
+  .btn-ghost{background:transparent; border-color:var(--border); color:var(--ink);}
+  .btn-ghost:hover{background:var(--surface-2);}
+  .btn-danger{background:transparent; border-color:var(--st-perdu); color:var(--st-perdu);}
+  .btn-danger:hover{background:var(--st-perdu-soft);}
+  .btn-sm{padding:6px 11px; font-size:13px; border-radius:8px;}
+  .icon{width:16px;height:16px;flex:none;}
+
+  /* ---------- stat tiles ---------- */
+  .stats{
+    display:grid; grid-template-columns:repeat(9,1fr); gap:10px;
+    margin-bottom:22px;
+  }
+  @media (max-width:1200px){ .stats{grid-template-columns:repeat(5,1fr);} }
+  @media (max-width:900px){ .stats{grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:520px){ .stats{grid-template-columns:repeat(2,1fr);} }
+  .tile{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px 14px 12px; cursor:pointer; text-align:left;
+    transition:border-color .15s ease, box-shadow .15s ease;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .tile:hover{box-shadow:var(--shadow);}
+  .tile.active{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset;}
+  .tile .n{font-family:"Fraunces",serif; font-size:26px; font-weight:600; font-variant-numeric:tabular-nums;}
+  .tile .l{font-size:12px; color:var(--ink-2); font-weight:600; letter-spacing:.01em;}
+  .tile .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
+  .tile.total .n{color:var(--ink);}
+
+  /* ---------- view tabs ---------- */
+  .tabs{
+    display:flex; gap:4px; flex-wrap:wrap; margin-bottom:16px;
+    border-bottom:1px solid var(--border);
+  }
+  .tab-btn{
+    display:inline-flex; align-items:center; gap:7px;
+    border:none; background:transparent; cursor:pointer;
+    padding:10px 14px; font-size:13.5px; font-weight:600; color:var(--ink-2);
+    border-bottom:2px solid transparent; margin-bottom:-1px;
+    transition:color .15s ease, border-color .15s ease;
+    white-space:nowrap;
+  }
+  .tab-btn:hover{color:var(--ink);}
+  .tab-btn.active{color:var(--accent); border-bottom-color:var(--accent);}
+  .tab-btn .tab-count{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:20px; height:20px; padding:0 6px; border-radius:99px;
+    background:var(--surface-2); color:var(--ink-2); font-size:11.5px; font-weight:700;
+    font-family:"IBM Plex Mono",monospace;
+  }
+  .tab-btn.active .tab-count{background:var(--accent-soft); color:var(--accent);}
+  .tab-btn.alert .tab-count{background:var(--st-perdu-soft); color:var(--st-perdu);}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    margin-bottom:16px; padding:12px; background:var(--surface);
+    border:1px solid var(--border); border-radius:var(--radius);
+  }
+  .search{
+    flex:1 1 220px; display:flex; align-items:center; gap:8px;
+    border:1px solid var(--border); border-radius:9px; padding:8px 12px;
+    background:var(--bg);
+  }
+  .search input{border:none; outline:none; background:transparent; color:var(--ink); font-size:14px; width:100%;}
+  .search .icon{color:var(--ink-3);}
+  select, .field input, .field textarea{
+    border:1px solid var(--border); border-radius:9px; padding:8px 10px;
+    background:var(--bg); color:var(--ink); font-size:13.5px; font-family:inherit;
+  }
+  select{cursor:pointer;}
+  .count-pill{
+    font-size:12.5px; color:var(--ink-2); margin-left:auto; white-space:nowrap;
+    font-weight:600;
+  }
+  .reset-link{font-size:12.5px; color:var(--accent); background:none; border:none; cursor:pointer; font-weight:600; padding:0;}
+
+  /* ---------- list ---------- */
+  .list{display:flex; flex-direction:column; gap:8px;}
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px 16px; display:grid; grid-template-columns:1.4fr 1fr 1fr 1.3fr auto; gap:14px;
+    align-items:center; cursor:pointer;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{box-shadow:var(--shadow); border-color:var(--ink-3);}
+  @media (max-width:980px){
+    .card{grid-template-columns:1fr 1fr; grid-template-areas:"name status" "meta meta" "notes notes"; row-gap:8px;}
+    .card .col-name{grid-area:name;}
+    .card .col-status{grid-area:status; justify-self:end;}
+    .card .col-meta{grid-area:meta;}
+    .card .col-notes{grid-area:notes;}
+  }
+  .col-name .name{font-weight:700; font-size:15px;}
+  .col-name .sub{font-size:12.5px; color:var(--ink-2); margin-top:2px; display:flex; gap:10px; flex-wrap:wrap;}
+  .col-name .sub a{color:var(--ink-2); text-decoration:none;}
+  .col-name .sub a:hover{color:var(--accent); text-decoration:underline;}
+  .col-meta{font-size:12.5px; color:var(--ink-2); display:flex; flex-direction:column; gap:3px;}
+  .col-meta .tag{display:inline-flex; align-items:center; gap:4px;}
+  .col-meta .tag b{color:var(--ink); font-weight:600;}
+  .col-notes{font-size:12.5px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
+  .col-callback{font-size:12.5px; color:var(--ink-2); white-space:nowrap;}
+  .col-callback b{color:var(--ink); font-weight:600; display:block; font-size:13px;}
+  .col-callback .overdue{color:var(--st-perdu); font-weight:700;}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:99px;
+    font-size:12px; font-weight:700; white-space:nowrap;
+  }
+  .badge .dot{width:6px;height:6px;border-radius:50%;}
+  .st-A-contacter{background:var(--st-contacter-soft); color:var(--st-contacter);}
+  .st-A-contacter .dot{background:var(--st-contacter);}
+  .st-Rappel-programme{background:var(--st-rappel-soft); color:var(--st-rappel);}
+  .st-Rappel-programme .dot{background:var(--st-rappel);}
+  .st-Devis-envoye{background:var(--st-devis-soft); color:var(--st-devis);}
+  .st-Devis-envoye .dot{background:var(--st-devis);}
+  .st-En-closing{background:var(--st-closing-soft); color:var(--st-closing);}
+  .st-En-closing .dot{background:var(--st-closing);}
+  .st-Vente{background:var(--st-vente-soft); color:var(--st-vente);}
+  .st-Vente .dot{background:var(--st-vente);}
+  .st-Gestion-administrative{background:var(--st-admin-soft); color:var(--st-admin);}
+  .st-Gestion-administrative .dot{background:var(--st-admin);}
+  .st-En-suspens{background:var(--st-suspens-soft); color:var(--st-suspens);}
+  .st-En-suspens .dot{background:var(--st-suspens);}
+  .st-Perdu{background:var(--st-perdu-soft); color:var(--st-perdu);}
+  .st-Perdu .dot{background:var(--st-perdu);}
+
+  /* ---------- statistiques ---------- */
+  .viz-kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px;}
+  @media (max-width:700px){ .viz-kpis{grid-template-columns:repeat(2,1fr);} }
+  .kpi-tile{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px; display:flex; flex-direction:column; gap:6px;
+  }
+  .kpi-tile .n{font-family:"Fraunces",serif; font-size:24px; font-weight:600; color:var(--ink);}
+  .kpi-tile .l{font-size:12px; color:var(--ink-2); font-weight:600;}
+  .charts-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:900px){ .charts-grid{grid-template-columns:1fr;} }
+  .chart-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 16px 14px;
+  }
+  .chart-title{font-size:13.5px; font-weight:700; color:var(--ink); margin-bottom:14px;}
+  .hbar-list{display:flex; flex-direction:column; gap:10px;}
+  .hbar-row{display:grid; grid-template-columns:112px 1fr 32px; gap:8px; align-items:center;}
+  .hbar-label{font-size:12.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .hbar-track{background:var(--surface-2); border-radius:6px; height:16px; overflow:hidden;}
+  .hbar-fill{height:100%; border-radius:6px; min-width:5px; transition:width .3s ease;}
+  .hbar-value{font-size:12px; text-align:right; color:var(--ink-2);}
+  .wk-chart{display:flex; align-items:flex-end; gap:6px; height:150px;}
+  .wk-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:4px; min-width:0;}
+  .wk-value{font-size:11px; color:var(--ink-2);}
+  .wk-bar{width:100%; max-width:26px; border-radius:4px 4px 0 0; min-height:3px;}
+  .wk-label{font-size:10.5px; color:var(--ink-3); white-space:nowrap;}
+  .chart-note{font-size:12px; color:var(--ink-3); margin-top:14px; line-height:1.5;}
+  .chart-empty{padding:34px 10px; text-align:center; font-size:12.5px; color:var(--ink-3); font-style:italic;}
+  .viz-tooltip{
+    position:fixed; z-index:60; background:var(--ink); color:var(--bg); font-size:12px;
+    padding:5px 9px; border-radius:7px; pointer-events:none; white-space:nowrap;
+    font-family:"IBM Plex Mono",monospace;
+  }
+
+  .empty, .loading{
+    text-align:center; padding:60px 20px; color:var(--ink-2);
+    background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius);
+  }
+  .empty h3{margin-bottom:6px; color:var(--ink);}
+
+  /* ---------- drawer ---------- */
+  .scrim{
+    position:fixed; inset:0; background:rgba(20,17,12,0.4); backdrop-filter:blur(1px);
+    opacity:0; pointer-events:none; transition:opacity .18s ease; z-index:40;
+  }
+  .scrim.open{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; right:0; height:100%; width:min(520px,100vw);
+    background:var(--surface); border-left:1px solid var(--border);
+    transform:translateX(100%); transition:transform .22s ease;
+    z-index:41; display:flex; flex-direction:column;
+    box-shadow:-16px 0 40px -20px rgba(0,0,0,0.3);
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:18px 20px; border-bottom:1px solid var(--border);
+  }
+  .drawer-head h2{font-size:19px;}
+  .drawer-body{padding:18px 20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:16px;}
+  .drawer-foot{
+    padding:14px 20px; border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:10px;
+  }
+  .close-x{
+    border:none; background:transparent; cursor:pointer; color:var(--ink-2);
+    width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:8px;
+  }
+  .close-x:hover{background:var(--surface-2); color:var(--ink);}
+
+  .section-label{
+    font-size:12px; text-transform:uppercase; letter-spacing:.07em; font-weight:700;
+    color:var(--ink-3); margin-bottom:8px;
+  }
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .relance-list{display:flex; flex-direction:column; gap:6px; margin-bottom:10px; max-height:200px; overflow-y:auto;}
+  .relance-empty{font-size:12.5px; color:var(--ink-3); font-style:italic;}
+  .relance-item{
+    display:flex; gap:8px; align-items:baseline; padding:8px 10px;
+    background:var(--surface-2); border-radius:9px; font-size:12.5px;
+  }
+  .relance-item .rd{font-family:"IBM Plex Mono",monospace; color:var(--ink-2); flex:none; white-space:nowrap;}
+  .relance-item .rc{
+    flex:none; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.02em;
+    color:var(--accent); background:var(--accent-soft); padding:2px 7px; border-radius:99px;
+  }
+  .relance-item .rr{color:var(--ink); flex:1;}
+  .relance-add{display:flex; gap:8px; flex-wrap:wrap;}
+  .relance-add select{flex:none;}
+  .relance-add input{flex:1 1 160px;}
+  .field{display:flex; flex-direction:column; gap:5px;}
+  .field label{font-size:12.5px; font-weight:600; color:var(--ink-2);}
+  .field input, .field select, .field textarea{width:100%;}
+  .hint{font-size:11.5px; color:var(--ink-3); line-height:1.35;}
+  .date-row{display:flex; gap:6px; align-items:center;}
+  .date-row input{flex:1; min-width:0;}
+  .date-row input[type="time"]{flex:0 0 112px;}
+  .clear-time{border:none; background:transparent; cursor:pointer; color:var(--ink-3); font-size:12px; padding:4px 6px; text-decoration:underline; white-space:nowrap;}
+  .clear-time:hover{color:var(--ink);}
+  .col-callback .lastcall{display:block; margin-top:4px; font-size:11.5px; color:var(--ink-3);}
+  .col-callback .lastcall b{display:inline; font-size:11.5px; color:var(--ink-2);}
+  .field textarea{resize:vertical; min-height:70px; font-family:inherit; line-height:1.4;}
+  #fld-notes{min-height:340px; height:52vh; font-size:13.5px; line-height:1.5;}
+  details.fin{border:1px solid var(--border); border-radius:10px; padding:0;}
+  details.fin summary{
+    padding:10px 12px; cursor:pointer; font-size:13px; font-weight:700; color:var(--ink-2);
+    list-style:none; display:flex; align-items:center; gap:6px;
+  }
+  details.fin summary::-webkit-details-marker{display:none;}
+  details.fin .fin-body{padding:0 12px 12px; display:flex; flex-direction:column; gap:10px;}
+
+  .confirm-pop{
+    display:flex; align-items:center; gap:8px; background:var(--st-perdu-soft);
+    border:1px solid var(--st-perdu); border-radius:9px; padding:8px 10px; font-size:12.5px;
+    color:var(--st-perdu); font-weight:600;
+  }
+  .confirm-pop button{border:none; background:none; cursor:pointer; font-weight:700; text-decoration:underline; color:var(--st-perdu);}
+
+  .visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+  [hidden]{display:none !important;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="brand-eyebrow">Gaston Tiny Home Village · Suivi commercial</div>
+      <h1>Pipeline prospects</h1>
+      <p class="sub">Vue en direct de tes prospects tiny house — ajoute, relance et fais évoluer chaque dossier ici.</p>
+    </div>
+    <button class="btn btn-primary" id="btn-new">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Ajouter un prospect
+    </button>
+  </header>
+
+  <div class="tabs" id="view-tabs"></div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar" id="toolbar">
+    <div class="search">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Chercher un nom, un téléphone, un email, une note…" autocomplete="off">
+    </div>
+    <select id="f-timeline">
+      <option value="">Tous délais</option>
+    </select>
+    <select id="f-closeur">
+      <option value="">Tous closeurs</option>
+    </select>
+    <select id="sort">
+      <option value="order-asc">Plus récents</option>
+      <option value="order-desc">Plus anciens</option>
+      <option value="name-asc">Nom (A→Z)</option>
+      <option value="status-asc">Statut</option>
+      <option value="callback-asc">Rappel le plus proche</option>
+      <option value="tentatives-desc">Nb tentatives (décroissant)</option>
+      <option value="lastcall-asc">Dernier appel (le plus ancien d'abord)</option>
+    </select>
+    <button class="reset-link" id="btn-reset" hidden>Réinitialiser</button>
+    <span class="count-pill" id="count-pill"></span>
+  </div>
+
+  <div id="list-wrap">
+    <div class="loading">Chargement du pipeline…</div>
+  </div>
+
+  <div id="charts-wrap" hidden></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <h2 id="drawer-title">Nouveau prospect</h2>
+    <button class="close-x" id="drawer-close" aria-label="Fermer">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body" id="drawer-body">
+    <div>
+      <div class="section-label">Contact</div>
+      <div class="grid2">
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-full_name">Nom complet</label>
+          <input id="fld-full_name" type="text" placeholder="Prénom Nom">
+        </div>
+        <div class="field">
+          <label for="fld-phone">Téléphone</label>
+          <input id="fld-phone" type="text" placeholder="06 12 34 56 78">
+        </div>
+        <div class="field">
+          <label for="fld-email">Email</label>
+          <input id="fld-email" type="text" placeholder="nom@exemple.com">
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-email2">Email 2 (2e adresse, optionnel)</label>
+          <input id="fld-email2" type="text" placeholder="autre@exemple.com">
+        </div>
+        <div class="field">
+          <label for="fld-region">Région</label>
+          <input id="fld-region" type="text" placeholder="France">
+        </div>
+        <div class="field">
+          <label for="fld-closeur">Closeur</label>
+          <input id="fld-closeur" type="text" placeholder="KK">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Qualification</div>
+      <div class="grid2">
+        <div class="field">
+          <label for="fld-terrain">Possède un terrain</label>
+          <select id="fld-terrain">
+            <option value="">—</option>
+            <option>Oui</option>
+            <option>Non</option>
+            <option>Recherche</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fld-deja_investi">Déjà investi</label>
+          <select id="fld-deja_investi">
+            <option value="">—</option>
+            <option value="oui">oui</option>
+            <option value="non">non</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fld-objectif">Objectif</label>
+          <select id="fld-objectif">
+            <option value="">—</option>
+            <option>Revenus locatifs (Airbnb)</option>
+            <option>Investissement long terme</option>
+            <option>Résidence secondaire</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fld-budget">Budget</label>
+          <select id="fld-budget">
+            <option value="">—</option>
+            <option>&lt; 50 000 €</option>
+            <option>50 000 – 100 000 €</option>
+            <option>100 000 – 200 000 €</option>
+            <option>&gt; 200 000 €</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-timeline">Délai de lancement</label>
+          <select id="fld-timeline">
+            <option value="">—</option>
+            <option>Dès que possible</option>
+            <option>Dans les 3 mois</option>
+            <option>Dans les 6 mois</option>
+            <option>Plus tard / réflexion</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-type_bien">Type de bien envisagé</label>
+          <input id="fld-type_bien" type="text" placeholder="ex. maison coquillage, mix tent…">
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Suivi</div>
+      <div class="grid2">
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-status">Statut</label>
+          <select id="fld-status">
+            <option>À contacter</option>
+            <option>Rappel programmé</option>
+            <option>Devis envoyé</option>
+            <option>En closing</option>
+            <option>Vente</option>
+            <option>Gestion administrative</option>
+            <option>En suspens</option>
+            <option>Perdu</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-date_dernier_appel">Dernier appel</label>
+          <div class="date-row">
+            <input id="fld-date_dernier_appel" type="date">
+            <input id="fld-heure_dernier_appel" type="time" aria-label="Heure du dernier appel (facultatif)" title="Heure (facultatif)">
+            <button type="button" class="clear-time" data-target="heure_dernier_appel" aria-label="Retirer l'heure">sans heure</button>
+          </div>
+          <div class="date-row" style="margin-top:6px;">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-call-today">Appelé aujourd'hui</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-call-noanswer">Pas de réponse</button>
+          </div>
+          <div class="hint"><b>Appelé aujourd'hui</b> = tu as eu la personne au téléphone. <b>Pas de réponse</b> = tentative d'appel sans retour, notée « à rappeler ». Dans les deux cas, chaque appel est ajouté aux notes avec la date et l'heure, et un rappel déjà passé est remis à zéro. Ça ne change pas les relances automatiques par email.</div>
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-date_rappel_precise">Date du rappel</label>
+          <div class="date-row">
+            <input id="fld-date_rappel_precise" type="date">
+            <input id="fld-heure_rappel" type="time" aria-label="Heure du rappel (facultatif)" title="Heure (facultatif)">
+            <button type="button" class="clear-time" data-target="heure_rappel" aria-label="Retirer l'heure">sans heure</button>
+          </div>
+          <div class="hint">Choisis le jour dans le calendrier, et l'heure seulement s'il y en a une. Si la date est dépassée sans appel, la fiche passe « En retard ».</div>
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-date_rappel">Rappel : note (facultatif)</label>
+          <input id="fld-date_rappel" type="text" placeholder="ex. il revient de voyage">
+          <div class="hint">Un mémo libre. Ne déclenche rien.</div>
+        </div>
+        <div class="field">
+          <label for="fld-nb_tentatives">Nb tentatives de relance</label>
+          <input id="fld-nb_tentatives" type="text" placeholder="0">
+        </div>
+        <div class="field">
+          <label for="fld-date_arrivee">Date d'arrivée du lead</label>
+          <input id="fld-date_arrivee" type="date">
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-notes">Notes</label>
+          <textarea id="fld-notes" placeholder="Détails de l'échange, contexte, objections…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div id="relance-section" hidden>
+      <div class="section-label">Historique des relances</div>
+      <div id="relance-list" class="relance-list"></div>
+      <div class="relance-add">
+        <select id="relance-canal">
+          <option value="email">Email</option>
+          <option value="téléphone">Téléphone</option>
+          <option value="sms">SMS</option>
+          <option value="visite">Visite / RDV</option>
+          <option value="autre">Autre</option>
+        </select>
+        <input id="relance-resume" type="text" placeholder="Résumé de la relance…">
+        <button class="btn btn-ghost btn-sm" id="btn-add-relance" type="button">+ Ajouter</button>
+      </div>
+    </div>
+
+    <details class="fin">
+      <summary>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+        Montage financier &amp; closing
+      </summary>
+      <div class="fin-body">
+        <div class="grid2">
+          <div class="field" style="grid-column:1 / -1;">
+            <label for="fld-montage_financier">Montage financier</label>
+            <input id="fld-montage_financier" type="text">
+          </div>
+          <div class="field">
+            <label for="fld-devis">Devis</label>
+            <input id="fld-devis" type="text">
+          </div>
+          <div class="field">
+            <label for="fld-montant">Montant facturé</label>
+            <input id="fld-montant" type="text">
+          </div>
+          <div class="field">
+            <label for="fld-banque">Banque</label>
+            <input id="fld-banque" type="text">
+          </div>
+          <div class="field">
+            <label for="fld-permis">Permis de construire</label>
+            <input id="fld-permis" type="text">
+          </div>
+          <div class="field">
+            <label for="fld-livraison">Livraison</label>
+            <input id="fld-livraison" type="text">
+          </div>
+          <div class="field">
+            <label for="fld-jalon1">Jalon 1 (50%)</label>
+            <input id="fld-jalon1" type="text">
+          </div>
+          <div class="field">
+            <label for="fld-jalon2">Jalon 2 (50%)</label>
+            <input id="fld-jalon2" type="text">
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+  <div class="drawer-foot">
+    <div id="delete-zone">
+      <button class="btn btn-danger btn-sm" id="btn-delete" hidden>Supprimer</button>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-ghost btn-sm" id="btn-cancel">Annuler</button>
+      <button class="btn btn-primary btn-sm" id="btn-save">Enregistrer</button>
+    </div>
+  </div>
+</aside>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+#auth-ov{position:fixed;inset:0;z-index:9999;background:var(--bg);display:none;align-items:center;justify-content:center;padding:16px}
+#auth-ov form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px}
+#auth-ov h1{font-family:'Fraunces',serif;font-size:22px;margin:0 0 4px;color:var(--ink)}
+#auth-ov input{font:inherit;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--ink)}
+#auth-ov button{font:inherit;font-weight:600;padding:10px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+#auth-err{color:var(--st-perdu);font-size:12px;min-height:16px}
+#btn-logout{position:fixed;right:10px;bottom:8px;z-index:50;font:11px 'IBM Plex Mono',monospace;color:var(--ink-3);background:none;border:0;cursor:pointer;opacity:.7}
+</style>
+<div id="auth-ov"><form id="auth-form"><h1>Pipeline Tiny House</h1>
+<input id="auth-email" type="email" placeholder="Email" autocomplete="username" required>
+<input id="auth-pass" type="password" placeholder="Mot de passe" autocomplete="current-password" required>
+<div id="auth-err"></div><button type="submit">Se connecter</button></form></div>
+<button id="btn-logout" hidden>Déconnexion</button>
+<script>
+(function(){
+  var SB = supabase.createClient("https://tsgiijsgghkarawbbhqu.supabase.co","sb_publishable_20MUEHfBs_kSiOe5xPIOsw_3BmPniT_");
+  var COLS = ["full_name","phone","email","email2","region","closeur","terrain","deja_investi","objectif","budget","timeline","type_bien","status","date_rappel","date_rappel_precise","heure_rappel","nb_tentatives","date_arrivee","date_dernier_appel","heure_dernier_appel","source","notes","montage_financier","devis","montant","banque","permis","livraison","jalon1","jalon2"];
+  var KNOWN = {}; COLS.forEach(function(c){KNOWN[c]=1;}); KNOWN.id=1; KNOWN.order=1; KNOWN.relances=1;
+  function fromRow(r){
+    var o = Object.assign({}, r.extra || {});
+    COLS.forEach(function(c){ o[c] = r[c] == null ? "" : r[c]; });
+    o.relances = Array.isArray(r.relances) ? r.relances : [];
+    o.order = r.ord == null ? 0 : r.ord;
+    return o;
+  }
+  function toRow(d){
+    var r = {extra:{}};
+    Object.keys(d).forEach(function(k){
+      if(k==="id") return;
+      if(k==="order") r.ord = d[k];
+      else if(k==="relances") r.relances = d[k];
+      else if(KNOWN[k]) r[k] = d[k] == null ? null : String(d[k]);
+      else r.extra[k] = d[k];
+    });
+    r.updated_at = new Date().toISOString();
+    return r;
+  }
+  function pick(patch){ var r = toRow(patch); if(!Object.keys(r.extra).length) delete r.extra; return r; }
+  function snapOf(rows){ return {docs: rows.map(function(r){ var d = fromRow(r); return {id:r.id, data:function(){return d;}}; })}; }
+  function chk(res){ if(res.error) throw res.error; return res; }
+  function newId(){ return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  async function fetchAll(){
+    var out = [], from = 0, step = 1000;
+    for(;;){
+      var res = chk(await SB.from("prospects").select("*").order("ord",{nullsFirst:false}).range(from, from+step-1));
+      out = out.concat(res.data); if(res.data.length < step) break; from += step;
+    }
+    return out;
+  }
+  var coll = {
+    get: async function(){ return snapOf(await fetchAll()); },
+    onSnapshot: function(ok, ko){
+      var busy = false;
+      async function pull(){ if(busy) return; busy = true; try{ ok(snapOf(await fetchAll())); }catch(e){ ko && ko(e); } busy = false; }
+      pull();
+      SB.channel("prospects-live").on("postgres_changes",{event:"*",schema:"public",table:"prospects"},pull).subscribe();
+      setInterval(pull, 30000);
+      window.__pullProspects = pull;
+    },
+    doc: function(id){ return {
+      update: async function(p){ chk(await SB.from("prospects").update(pick(p)).eq("id",id)); window.__pullProspects && window.__pullProspects(); },
+      set: async function(d){ var r = toRow(d); r.id = id; chk(await SB.from("prospects").upsert(r)); window.__pullProspects && window.__pullProspects(); },
+      delete: async function(){ chk(await SB.from("prospects").delete().eq("id",id)); window.__pullProspects && window.__pullProspects(); }
+    };},
+    add: async function(d){ var r = toRow(d); r.id = newId(); chk(await SB.from("prospects").insert(r)); window.__pullProspects && window.__pullProspects(); return {id:r.id}; }
+  };
+  var dbApi = {collection:function(n){ if(n!=="prospects") throw new Error("collection "+n); return coll; }};
+  var ov = document.getElementById("auth-ov"), errEl = document.getElementById("auth-err"), lo = document.getElementById("btn-logout");
+  var ready;
+  window.claude = { use: function(){ return new Promise(function(res){ ready = res; SB.auth.getSession().then(function(s){ gate(s.data.session); }); }); } };
+  function gate(session){
+    if(session){ ov.style.display="none"; lo.hidden=false; if(ready){ var r=ready; ready=null; r(dbApi); } }
+    else { ov.style.display="flex"; lo.hidden=true; }
+  }
+  document.getElementById("auth-form").addEventListener("submit", async function(e){
+    e.preventDefault(); errEl.textContent="";
+    var r = await SB.auth.signInWithPassword({email:document.getElementById("auth-email").value.trim(), password:document.getElementById("auth-pass").value});
+    if(r.error){ errEl.textContent = "Email ou mot de passe incorrect."; return; }
+    gate(r.data.session);
+  });
+  lo.addEventListener("click", async function(){ await SB.auth.signOut(); location.reload(); });
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+
+  var STATUS_LIST = ["À contacter","Rappel programmé","Devis envoyé","En closing","Vente","Gestion administrative","En suspens","Perdu"];
+  var STATUS_CLASS = {
+    "À contacter":"st-A-contacter",
+    "Rappel programmé":"st-Rappel-programme",
+    "Devis envoyé":"st-Devis-envoye",
+    "En closing":"st-En-closing",
+    "Vente":"st-Vente",
+    "Gestion administrative":"st-Gestion-administrative",
+    "En suspens":"st-En-suspens",
+    "Perdu":"st-Perdu"
+  };
+  var FIELD_IDS = ["full_name","phone","email","email2","region","closeur","terrain","deja_investi",
+    "objectif","budget","timeline","type_bien","status","date_rappel","date_rappel_precise",
+    "nb_tentatives","date_arrivee","date_dernier_appel","heure_dernier_appel","heure_rappel","notes",
+    "montage_financier","devis","montant","banque","permis","livraison","jalon1","jalon2"];
+
+  var els = {
+    viewTabs: document.getElementById("view-tabs"),
+    stats: document.getElementById("stats"),
+    listWrap: document.getElementById("list-wrap"),
+    q: document.getElementById("q"),
+    fTimeline: document.getElementById("f-timeline"),
+    fCloseur: document.getElementById("f-closeur"),
+    sort: document.getElementById("sort"),
+    countPill: document.getElementById("count-pill"),
+    toolbar: document.getElementById("toolbar"),
+    chartsWrap: document.getElementById("charts-wrap"),
+    btnReset: document.getElementById("btn-reset"),
+    btnNew: document.getElementById("btn-new"),
+    scrim: document.getElementById("scrim"),
+    drawer: document.getElementById("drawer"),
+    drawerTitle: document.getElementById("drawer-title"),
+    drawerClose: document.getElementById("drawer-close"),
+    btnCancel: document.getElementById("btn-cancel"),
+    btnSave: document.getElementById("btn-save"),
+    btnDelete: document.getElementById("btn-delete"),
+    deleteZone: document.getElementById("delete-zone"),
+    relanceSection: document.getElementById("relance-section"),
+    relanceList: document.getElementById("relance-list"),
+    relanceCanal: document.getElementById("relance-canal"),
+    relanceResume: document.getElementById("relance-resume"),
+    btnAddRelance: document.getElementById("btn-add-relance")
+  };
+
+  var state = {
+    prospects: [],
+    activeStatus: null,
+    editingId: null,
+    db: null,
+    ready: false,
+    viewTab: "all"
+  };
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+
+  // ---------- dates : stockage ISO (AAAA-MM-JJ), affichage et saisie en JJ/MM/AAAA ----------
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function validYMD(y,m,d){ var t = new Date(y, m-1, d); return t.getFullYear() === y && t.getMonth() === m-1 && t.getDate() === d; }
+  // Lit une date stockée, quel que soit son format historique, et renvoie AAAA-MM-JJ ("" si illisible).
+  //  - AAAA-MM-JJ (ou AAAA/MM/JJ, avec ou sans zéros)      -> tel quel
+  //  - J/M/AAAA (année à 4 chiffres)                         -> européen
+  //  - M/J/AA (année à 2 chiffres, ancien import du Sheet)   -> américain
+  function toIso(s){
+    s = String(s == null ? "" : s).trim();
+    if(!s) return "";
+    var m = /^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/.exec(s);
+    if(m){ return validYMD(+m[1],+m[2],+m[3]) ? m[1] + "-" + pad2(m[2]) + "-" + pad2(m[3]) : ""; }
+    m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+    if(m){ return validYMD(+m[3],+m[2],+m[1]) ? m[3] + "-" + pad2(m[2]) + "-" + pad2(m[1]) : ""; }
+    m = /^(\d{1,2})\/(\d{1,2})\/(\d{2})$/.exec(s);
+    if(m){ return validYMD(2000+(+m[3]),+m[1],+m[2]) ? (2000+(+m[3])) + "-" + pad2(m[1]) + "-" + pad2(m[2]) : ""; }
+    return "";
+  }
+  // AAAA-MM-JJ -> JJ/MM/AAAA (si la date n'est pas lisible, on renvoie le texte d'origine tel quel)
+  function fmtFr(s){
+    var iso = toIso(s);
+    if(!iso) return String(s == null ? "" : s);
+    return iso.slice(8,10) + "/" + iso.slice(5,7) + "/" + iso.slice(0,4);
+  }
+  // Ce que tu tapes (JJ/MM/AAAA, JJ/MM/AA, JJ-MM-AAAA, JJ.MM.AAAA ou AAAA-MM-JJ) -> AAAA-MM-JJ, ou null si illisible
+  function parseFrenchInput(s){
+    s = String(s == null ? "" : s).trim();
+    if(!s) return "";
+    var m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
+    if(m) return validYMD(+m[1],+m[2],+m[3]) ? m[1] + "-" + pad2(m[2]) + "-" + pad2(m[3]) : null;
+    m = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2}|\d{4})$/.exec(s);
+    if(m){
+      var y = m[3].length === 2 ? 2000 + (+m[3]) : +m[3];
+      return validYMD(y,+m[2],+m[1]) ? y + "-" + pad2(m[2]) + "-" + pad2(m[1]) : null;
+    }
+    return null;
+  }
+  function todayFr(){ return fmtFr(todayStr()); }
+  function nowHM(){ var d = new Date(); return pad2(d.getHours()) + ":" + pad2(d.getMinutes()); }
+  // "14:30" -> "14h30", "09:00" -> "9h"
+  function fmtHeure(h){
+    var m = /^(\d{1,2}):(\d{2})/.exec(String(h || ""));
+    if(!m) return "";
+    return (+m[1]) + "h" + (m[2] === "00" ? "" : m[2]);
+  }
+
+  // En retard = rappel programmé dont la date est passée ET aucun appel passé depuis cette date.
+  function isOverdue(p){
+    var iso = toIso(p.date_rappel_precise);
+    if(p.status !== "Rappel programmé" || !iso || iso >= todayStr()) return false;
+    var lc = toIso(p.date_dernier_appel);
+    return !(lc && lc >= iso);
+  }
+
+  function statusCounts(){
+    var counts = {}; STATUS_LIST.forEach(function(s){ counts[s] = 0; });
+    state.prospects.forEach(function(p){ if(counts[p.status] !== undefined) counts[p.status]++; else counts[p.status] = (counts[p.status]||0)+1; });
+    return counts;
+  }
+
+  var STAT_TILES = [
+    {key:null, label:"Total prospects", varName:"--ink"},
+    {key:"À contacter", label:"À contacter", varName:"--st-contacter"},
+    {key:"Rappel programmé", label:"Rappel programmé", varName:"--st-rappel"},
+    {key:"Devis envoyé", label:"Devis envoyé", varName:"--st-devis"},
+    {key:"En closing", label:"En closing", varName:"--st-closing"},
+    {key:"Vente", label:"Vente", varName:"--st-vente"},
+    {key:"Gestion administrative", label:"Gestion admin.", varName:"--st-admin"},
+    {key:"En suspens", label:"En suspens", varName:"--st-suspens"},
+    {key:"Perdu", label:"Perdu", varName:"--st-perdu"}
+  ];
+  var STATUS_VAR = {};
+  STAT_TILES.forEach(function(t){ if(t.key) STATUS_VAR[t.key] = t.varName; });
+
+  function renderStats(){
+    var counts = statusCounts();
+    var total = state.prospects.length;
+    els.stats.innerHTML = STAT_TILES.map(function(t){
+      var n = t.key === null ? total : (counts[t.key] || 0);
+      var active = state.activeStatus === t.key;
+      return '<button class="tile ' + (t.key===null?'total':'') + (active?' active':'') + '" data-status="' + (t.key ? esc(t.key) : "") + '">' +
+        '<span class="n" style="color:var(' + t.varName + ')">' + n + '</span>' +
+        '<span class="l">' + (t.key ? '<span class="dot" style="background:var(' + t.varName + ')"></span>' : '') + esc(t.label) + '</span>' +
+        '</button>';
+    }).join("");
+    Array.prototype.forEach.call(els.stats.querySelectorAll(".tile"), function(btn){
+      btn.addEventListener("click", function(){
+        var s = btn.getAttribute("data-status");
+        state.activeStatus = s ? (state.activeStatus === s ? null : s) : null;
+        state.viewTab = "all";
+        renderTabs(); renderStats(); renderList();
+      });
+    });
+  }
+
+  function tentatives(p){
+    var n = parseInt(p.nb_tentatives, 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  var TAB_DEFS = [
+    { id:"all", label:"Tous les prospects", match:function(){ return true; } },
+    { id:"leads", label:"Nouveaux leads", sort:"order-asc",
+      match:function(p){ return p.status === "À contacter" && tentatives(p) === 0; } },
+    { id:"rappels", label:"Rappels à faire", sort:"callback-asc", statusHighlight:"Rappel programmé",
+      match:function(p){ return p.status === "Rappel programmé"; } },
+    { id:"relances", label:"Relances à risque (5+)", sort:"tentatives-desc",
+      match:function(p){ return tentatives(p) >= 5 && p.status !== "Vente" && p.status !== "Perdu"; } },
+    { id:"stats", label:"Statistiques", isStats:true, match:function(){ return false; } }
+  ];
+
+  function tabDef(id){
+    for(var i=0;i<TAB_DEFS.length;i++){ if(TAB_DEFS[i].id === id) return TAB_DEFS[i]; }
+    return TAB_DEFS[0];
+  }
+
+  function renderTabs(){
+    els.viewTabs.innerHTML = TAB_DEFS.map(function(t){
+      var active = state.viewTab === t.id;
+      var alert = (t.id === "rappels" && state.prospects.some(function(p){ return t.match(p) && isOverdue(p); }));
+      var countHtml = "";
+      if(!t.isStats){
+        var count = t.id === "all" ? state.prospects.length : state.prospects.filter(t.match).length;
+        countHtml = '<span class="tab-count">' + count + '</span>';
+      }
+      return '<button class="tab-btn' + (active?' active':'') + (alert?' alert':'') + '" data-tab="' + t.id + '">' +
+        esc(t.label) + countHtml +
+        '</button>';
+    }).join("");
+    Array.prototype.forEach.call(els.viewTabs.querySelectorAll(".tab-btn"), function(btn){
+      btn.addEventListener("click", function(){
+        var id = btn.getAttribute("data-tab");
+        state.viewTab = id;
+        var def = tabDef(id);
+        state.activeStatus = def.statusHighlight || null;
+        if(def.sort) els.sort.value = def.sort;
+        renderTabs(); renderStats(); renderList();
+      });
+    });
+  }
+
+  function populateFilterOptions(){
+    var timelines = uniqueSorted(state.prospects.map(function(p){return p.timeline;}));
+    var closeurs = uniqueSorted(state.prospects.map(function(p){return (p.closeur||"").trim();}));
+    fillSelect(els.fTimeline, timelines, "Tous délais");
+    fillSelect(els.fCloseur, closeurs, "Tous closeurs");
+  }
+  function uniqueSorted(arr){
+    var set = {};
+    arr.forEach(function(v){ v = (v||"").trim(); if(v) set[v]=true; });
+    return Object.keys(set).sort(function(a,b){return a.localeCompare(b,"fr");});
+  }
+  function fillSelect(sel, values, placeholder){
+    var current = sel.value;
+    sel.innerHTML = '<option value="">' + placeholder + '</option>' +
+      values.map(function(v){ return '<option value="' + esc(v) + '">' + esc(v) + '</option>'; }).join("");
+    if(values.indexOf(current) !== -1) sel.value = current;
+  }
+
+  function matchesFilters(p){
+    if(!tabDef(state.viewTab).match(p)) return false;
+    var q = els.q.value.trim().toLowerCase();
+    if(q){
+      var hay = [p.full_name,p.phone,p.email,p.email2,p.notes,p.region,p.closeur].join(" ").toLowerCase();
+      var qd = q.replace(/\D/g,"");
+      var okPhone = qd.length >= 3 && phoneDigits(p.phone).indexOf(qd) !== -1;
+      if(hay.indexOf(q) === -1 && !okPhone) return false;
+    }
+    if(state.viewTab === "all" && state.activeStatus && p.status !== state.activeStatus) return false;
+    if(els.fTimeline.value && p.timeline !== els.fTimeline.value) return false;
+    if(els.fCloseur.value && (p.closeur||"").trim() !== els.fCloseur.value) return false;
+    return true;
+  }
+
+  function sortProspects(list){
+    var mode = els.sort.value;
+    var copy = list.slice();
+    copy.sort(function(a,b){
+      if(mode === "order-asc") return (a.order||0) - (b.order||0);
+      if(mode === "order-desc") return (b.order||0) - (a.order||0);
+      if(mode === "name-asc") return (a.full_name||"").localeCompare(b.full_name||"","fr");
+      if(mode === "status-asc") return STATUS_LIST.indexOf(a.status) - STATUS_LIST.indexOf(b.status);
+      if(mode === "callback-asc"){
+        var av = toIso(a.date_rappel_precise) || "9999-99-99";
+        var bv = toIso(b.date_rappel_precise) || "9999-99-99";
+        return av < bv ? -1 : av > bv ? 1 : 0;
+      }
+      if(mode === "tentatives-desc") return tentatives(b) - tentatives(a);
+      if(mode === "lastcall-asc"){
+        var la = a.date_dernier_appel || "0000-00-00";
+        var lb = b.date_dernier_appel || "0000-00-00";
+        return la < lb ? -1 : la > lb ? 1 : 0;
+      }
+      return 0;
+    });
+    return copy;
+  }
+
+  // ---- Numéros de téléphone : affichage lisible (indicatif, puis chiffres par 2) ----
+  var CC2 = {"20":1,"27":1,"30":1,"31":1,"32":1,"33":1,"34":1,"36":1,"39":1,"40":1,"41":1,"43":1,"44":1,"45":1,"46":1,"47":1,"48":1,"49":1,"51":1,"52":1,"53":1,"54":1,"55":1,"56":1,"57":1,"58":1,"60":1,"61":1,"62":1,"63":1,"64":1,"65":1,"66":1,"81":1,"82":1,"84":1,"86":1,"90":1,"91":1,"92":1,"93":1,"94":1,"95":1,"98":1};
+  function phoneDigits(raw){
+    var d = String(raw == null ? "" : raw).replace(/\D/g,"");
+    if(d.indexOf("00") === 0 && d.length > 10) d = d.slice(2);
+    return d;
+  }
+  function fmtTel(raw){
+    var d = normPhone(raw);
+    if(d.length < 8 || d.length > 15) return raw == null ? "" : String(raw);
+    var cc = (d.charAt(0) === "1" || d.charAt(0) === "7") ? 1 : (CC2[d.slice(0,2)] ? 2 : 3);
+    var nat = d.slice(cc), parts = [];
+    if(nat.length % 2 === 1){ parts.push(nat.charAt(0)); nat = nat.slice(1); }
+    for(var i = 0; i < nat.length; i += 2) parts.push(nat.slice(i, i+2));
+    return "+" + d.slice(0,cc) + " " + parts.join(" ");
+  }
+  // Ce que l'on enregistre : chiffres seuls avec indicatif (06… devient 33 6…)
+  function normPhone(raw){
+    var d = phoneDigits(raw);
+    if(d.length === 10 && d.charAt(0) === "0") d = "33" + d.slice(1);
+    return d;
+  }
+
+  // ---- Notes : stockées dans l'ordre chronologique (les automatisations ajoutent à la fin),
+  //      affichées avec les plus récentes en haut. Conversion exactement réversible. ----
+  var NOTE_SEP = "──────── Notes initiales (plus anciennes) ────────";
+  function isDatedLine(l){ return /^\s*\[(\d{1,2}\/\d{1,2}\/\d{2,4}|\d{4}-\d{1,2}-\d{1,2})/.test(l); }
+  function noteBlocks(raw){
+    var lines = String(raw == null ? "" : raw).split("\n");
+    var lead = [], blocks = [], cur = null;
+    lines.forEach(function(l){
+      if(isDatedLine(l)){ cur = [l]; blocks.push(cur); }
+      else if(cur){ cur.push(l); }
+      else { lead.push(l); }
+    });
+    return {lead: lead, blocks: blocks};
+  }
+  function notesToDisplay(raw){
+    if(raw == null || String(raw).trim() === "") return "";
+    var nb = noteBlocks(raw);
+    if(!nb.blocks.length) return String(raw);   // aucune note datée : texte libre tel quel
+    var out = [];
+    for(var i = nb.blocks.length - 1; i >= 0; i--){ out = out.concat(nb.blocks[i]); }
+    if(nb.lead.join("").trim() !== ""){ out.push(NOTE_SEP); out = out.concat(nb.lead); }
+    return out.join("\n");
+  }
+  // Texte affiché -> texte stocké. Le texte tapé en haut sans date reçoit la date du jour.
+  function displayToNotes(disp){
+    var lines = String(disp == null ? "" : disp).split("\n");
+    var sepIdx = lines.indexOf(NOTE_SEP);
+    var top = sepIdx === -1 ? lines : lines.slice(0, sepIdx);
+    var lead = sepIdx === -1 ? [] : lines.slice(sepIdx + 1);
+    var firstDated = -1;
+    for(var i = 0; i < top.length; i++){ if(isDatedLine(top[i])){ firstDated = i; break; } }
+    var fresh = [], rest = top;
+    if(firstDated === -1){
+      if(sepIdx === -1){ return lines.join("\n"); }   // pas de séparateur ni de date : texte libre ancien, inchangé
+      fresh = top; rest = [];
+    } else { fresh = top.slice(0, firstDated); rest = top.slice(firstDated); }
+    while(fresh.length && fresh[fresh.length-1].trim() === "") fresh.pop();
+    while(fresh.length && fresh[0].trim() === "") fresh.shift();
+    var blocks = [];
+    var cur = null;
+    rest.forEach(function(l){ if(isDatedLine(l)){ cur = [l]; blocks.push(cur); } else if(cur){ cur.push(l); } });
+    if(fresh.length){
+      fresh[0] = "[" + todayFr() + " " + fmtHeure(nowHM()) + "] " + fresh[0];
+      blocks.unshift(fresh);   // le plus récent en haut de l'affichage
+    }
+    var chrono = [];
+    for(var j = blocks.length - 1; j >= 0; j--){ chrono = chrono.concat(blocks[j]); }
+    return lead.concat(chrono).join("\n");
+  }
+  function notesForList(raw){
+    var nb = noteBlocks(raw), out = [];
+    for(var i = nb.blocks.length - 1; i >= 0; i--){ out = out.concat(nb.blocks[i]); }
+    var res = out.join("\n").trim();
+    var lead = nb.lead.join("\n").trim();
+    return res ? (lead ? res + "\n" + lead : res) : lead;
+  }
+
+  function telHref(phone){
+    var digits = (phone||"").replace(/[^\d+]/g,"");
+    return digits ? "tel:+" + digits.replace(/^\+?/,"") : "";
+  }
+
+  function callbackHtmlBase(p){
+    if(p.date_rappel_precise || p.date_rappel){
+      var dateLbl = p.date_rappel_precise ? (fmtFr(p.date_rappel_precise) + (p.heure_rappel ? " à " + fmtHeure(p.heure_rappel) : "")) : "";
+      var label = dateLbl || p.date_rappel;
+      var noteHtml = (dateLbl && p.date_rappel) ? '<span class="lastcall">' + esc(p.date_rappel) + '</span>' : "";
+      if(isOverdue(p)){
+        return '<span class="overdue">⚠ En retard</span><b>' + esc(label) + '</b>' + noteHtml;
+      }
+      return 'Rappel<b>' + esc(label) + '</b>' + noteHtml;
+    }
+    if(p.status === "Rappel programmé") return 'Rappel<b>date à fixer</b>';
+    if(p.date_arrivee) return 'Arrivé le<b>' + esc(fmtFr(p.date_arrivee)) + '</b>';
+    return '';
+  }
+
+  function fmtIsoFr(iso){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+    return m ? (m[3] + "/" + m[2] + "/" + m[1]) : (iso || "");
+  }
+  function callbackHtml(p){
+    var html = callbackHtmlBase(p);
+    if(p.date_dernier_appel){
+      html += '<span class="lastcall">Dernier appel : <b>' + esc(fmtFr(p.date_dernier_appel) + (p.heure_dernier_appel ? " à " + fmtHeure(p.heure_dernier_appel) : "")) + '</b></span>';
+    }
+    return html;
+  }
+
+  function renderList(){
+    var filtered = sortProspects(state.prospects.filter(matchesFilters));
+    els.countPill.textContent = filtered.length + " / " + state.prospects.length + " prospect" + (state.prospects.length>1?"s":"");
+    var anyFilter = els.q.value.trim() || state.activeStatus || els.fTimeline.value || els.fCloseur.value || state.viewTab !== "all";
+    els.btnReset.hidden = !anyFilter;
+
+    if(!state.ready){
+      els.listWrap.innerHTML = '<div class="loading">Chargement du pipeline…</div>';
+      return;
+    }
+    if(filtered.length === 0){
+      els.listWrap.innerHTML = '<div class="empty"><h3>Aucun prospect</h3><p>' +
+        (state.prospects.length === 0 ? "Ajoute ton premier prospect avec le bouton en haut." : "Aucun résultat pour ces filtres.") +
+        '</p></div>';
+      return;
+    }
+
+    var html = '<div class="list">' + filtered.map(function(p){
+      var cls = STATUS_CLASS[p.status] || "st-A-contacter";
+      var contactBits = [];
+      if(p.phone) contactBits.push('<a href="' + telHref(p.phone) + '" onclick="event.stopPropagation()">' + esc(fmtTel(p.phone)) + '</a>');
+      if(p.email) contactBits.push('<a href="mailto:' + esc(p.email) + '" onclick="event.stopPropagation()">' + esc(p.email) + '</a>');
+      if(p.email2) contactBits.push('<a href="mailto:' + esc(p.email2) + '" onclick="event.stopPropagation()">' + esc(p.email2) + '</a>');
+      var metaBits = [];
+      if(p.objectif) metaBits.push('<span class="tag">' + esc(p.objectif) + '</span>');
+      if(p.budget) metaBits.push('<span class="tag"><b>' + esc(p.budget) + '</b></span>');
+      if(p.terrain) metaBits.push('<span class="tag">Terrain : ' + esc(p.terrain) + '</span>');
+      if(p.nb_tentatives) metaBits.push('<span class="tag">Relances : <b>' + esc(p.nb_tentatives) + '</b></span>');
+      var closeurBit = p.closeur ? ('<span class="tag">Closeur : <b>' + esc(p.closeur) + '</b></span>') : "";
+      return '<div class="card" data-id="' + esc(p.id) + '">' +
+        '<div class="col-name">' +
+          '<div class="name">' + esc(p.full_name || "(sans nom)") + '</div>' +
+          '<div class="sub">' + contactBits.join(" · ") + (p.region ? ' · ' + esc(p.region) : '') + '</div>' +
+        '</div>' +
+        '<div class="col-meta">' + metaBits.join("") + closeurBit + '</div>' +
+        '<div class="col-notes">' + esc(notesForList(p.notes)) + '</div>' +
+        '<div class="col-callback">' + callbackHtml(p) + '</div>' +
+        '<div class="col-status"><span class="badge ' + cls + '"><span class="dot"></span>' + esc(p.status || "") + '</span></div>' +
+      '</div>';
+    }).join("") + '</div>';
+    els.listWrap.innerHTML = html;
+
+    Array.prototype.forEach.call(els.listWrap.querySelectorAll(".card"), function(card){
+      card.addEventListener("click", function(){ openDrawer(card.getAttribute("data-id")); });
+    });
+  }
+
+  function refresh(){
+    var steps = [["renderTabs",renderTabs],["renderStats",renderStats],["populateFilterOptions",populateFilterOptions],["renderMain",renderMain]];
+    for(var i=0;i<steps.length;i++){
+      try{ steps[i][1](); }
+      catch(e){
+        showBootDiag("Erreur dans " + steps[i][0] + "()", String(e && (e.stack || e.message) || e));
+        return;
+      }
+    }
+  }
+
+  function renderMain(){
+    var isStats = state.viewTab === "stats";
+    els.toolbar.hidden = isStats;
+    els.listWrap.hidden = isStats;
+    els.chartsWrap.hidden = !isStats;
+    if(isStats) renderCharts(); else renderList();
+  }
+
+  // ---------- statistiques ----------
+  function totalRelancesCount(){
+    return state.prospects.reduce(function(sum,p){ return sum + (Array.isArray(p.relances) ? p.relances.length : 0); }, 0);
+  }
+
+  function parseDateFlexible(str){
+    var iso = toIso(str);
+    if(!iso) return null;
+    var d = new Date(+iso.slice(0,4), +iso.slice(5,7)-1, +iso.slice(8,10));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function mondayOf(d){
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var day = x.getDay();
+    var diff = (day === 0 ? -6 : 1 - day);
+    x.setDate(x.getDate() + diff);
+    return x;
+  }
+
+  function fmtDayMonth(d){
+    return String(d.getDate()).padStart(2,"0") + "/" + String(d.getMonth()+1).padStart(2,"0");
+  }
+
+  function weeklyBuckets(dates, weekCount){
+    var thisMonday = mondayOf(new Date());
+    var weeks = [];
+    for(var i = weekCount-1; i>=0; i--){
+      var start = new Date(thisMonday);
+      start.setDate(start.getDate() - i*7);
+      var end = new Date(start); end.setDate(end.getDate()+6);
+      weeks.push({start:start, end:end, count:0});
+    }
+    dates.forEach(function(d){
+      for(var i=0;i<weeks.length;i++){
+        if(d >= weeks[i].start && d <= weeks[i].end){ weeks[i].count++; return; }
+      }
+    });
+    return weeks;
+  }
+
+  var tooltipEl = null;
+  function ensureTooltip(){
+    if(!tooltipEl){
+      tooltipEl = document.createElement("div");
+      tooltipEl.className = "viz-tooltip";
+      tooltipEl.hidden = true;
+      document.body.appendChild(tooltipEl);
+    }
+    return tooltipEl;
+  }
+  function wireTooltips(container){
+    var tip = ensureTooltip();
+    Array.prototype.forEach.call(container.querySelectorAll("[data-tip]"), function(el){
+      el.addEventListener("mouseenter", function(){ tip.textContent = el.getAttribute("data-tip"); tip.hidden = false; });
+      el.addEventListener("mousemove", function(e){ tip.style.left = (e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; });
+      el.addEventListener("mouseleave", function(){ tip.hidden = true; });
+    });
+  }
+
+  function renderHBarChart(title, rows){
+    if(rows.length === 0){
+      return '<div class="chart-card"><div class="chart-title">' + esc(title) + '</div><div class="chart-empty">Pas encore de données.</div></div>';
+    }
+    var max = rows.reduce(function(m,r){ return Math.max(m, r.value); }, 0) || 1;
+    var body = rows.map(function(r){
+      var pct = Math.max(3, Math.round((r.value / max) * 100));
+      return '<div class="hbar-row">' +
+        '<div class="hbar-label">' + esc(r.label) + '</div>' +
+        '<div class="hbar-track"><div class="hbar-fill" style="width:' + pct + '%; background:' + r.color + '" data-tip="' + esc(r.label + ' — ' + r.value) + '"></div></div>' +
+        '<div class="hbar-value num">' + r.value + '</div>' +
+      '</div>';
+    }).join("");
+    return '<div class="chart-card"><div class="chart-title">' + esc(title) + '</div><div class="hbar-list">' + body + '</div></div>';
+  }
+
+  function renderWeekChart(title, weeks, color){
+    var max = weeks.reduce(function(m,w){ return Math.max(m, w.count); }, 0) || 1;
+    var cols = weeks.map(function(w){
+      var pct = w.count === 0 ? 2 : Math.max(6, Math.round((w.count / max) * 100));
+      var tip = fmtDayMonth(w.start) + "–" + fmtDayMonth(w.end) + " : " + w.count;
+      return '<div class="wk-col">' +
+        '<div class="wk-value num">' + (w.count || "") + '</div>' +
+        '<div class="wk-bar" style="height:' + pct + '%; background:' + color + '" data-tip="' + esc(tip) + '"></div>' +
+        '<div class="wk-label">' + fmtDayMonth(w.start) + '</div>' +
+      '</div>';
+    }).join("");
+    return '<div class="chart-card"><div class="chart-title">' + esc(title) + '</div><div class="wk-chart">' + cols + '</div></div>';
+  }
+
+  function renderCharts(){
+    var total = state.prospects.length;
+    var ventes = state.prospects.filter(function(p){ return p.status === "Vente"; }).length;
+    var perdus = state.prospects.filter(function(p){ return p.status === "Perdu"; }).length;
+    var actifs = total - ventes - perdus;
+    var taux = total > 0 ? Math.round((ventes/total)*1000)/10 : 0;
+    var totalRelances = totalRelancesCount();
+
+    var kpisHtml = [
+      {n: total, l:"Total prospects"},
+      {n: (taux % 1 === 0 ? taux.toFixed(0) : taux.toFixed(1)).replace(".", ",") + " %", l:"Taux de conversion (ventes)"},
+      {n: actifs, l:"Prospects actifs"},
+      {n: totalRelances, l:"Relances enregistrées"}
+    ].map(function(k){
+      return '<div class="kpi-tile"><span class="n num">' + k.n + '</span><span class="l">' + esc(k.l) + '</span></div>';
+    }).join("");
+
+    var counts = statusCounts();
+    var statusRows = STATUS_LIST.map(function(s){
+      return {label:s, value: counts[s] || 0, color: "var(" + STATUS_VAR[s] + ")"};
+    });
+
+    var closeurMap = {};
+    state.prospects.forEach(function(p){
+      var raw = (p.closeur || "").trim();
+      var key = raw ? raw.toUpperCase() : "Non assigné";
+      closeurMap[key] = (closeurMap[key] || 0) + 1;
+    });
+    var CHART_SLOTS = ["--chart-1","--chart-2","--chart-3","--chart-4","--chart-5","--chart-6","--chart-7","--chart-8"];
+    var closeurNames = Object.keys(closeurMap).filter(function(k){ return k !== "Non assigné"; }).sort(function(a,b){ return a.localeCompare(b,"fr"); });
+    var closeurColor = {};
+    closeurNames.forEach(function(name, i){ closeurColor[name] = "var(" + CHART_SLOTS[i % CHART_SLOTS.length] + ")"; });
+    closeurColor["Non assigné"] = "var(--ink-3)";
+    var closeurRows = Object.keys(closeurMap).sort(function(a,b){ return closeurMap[b] - closeurMap[a]; }).map(function(k){
+      return {label:k, value: closeurMap[k], color: closeurColor[k]};
+    });
+
+    var leadDates = state.prospects.map(function(p){ return parseDateFlexible(p.date_arrivee); }).filter(Boolean);
+    var leadWeeks = weeklyBuckets(leadDates, 10);
+
+    var relanceDates = [];
+    state.prospects.forEach(function(p){
+      if(Array.isArray(p.relances)) p.relances.forEach(function(r){ var d = parseDateFlexible(r.date); if(d) relanceDates.push(d); });
+    });
+    var relanceWeeks = weeklyBuckets(relanceDates, 10);
+
+    var relanceChartHtml = totalRelances === 0
+      ? '<div class="chart-card"><div class="chart-title">Relances envoyées par semaine</div><div class="chart-empty">Aucune relance enregistrée pour l’instant — ce graphique se remplira au fur et à mesure des relances (automatiques ou ajoutées à la main dans une fiche).</div></div>'
+      : renderWeekChart("Relances envoyées par semaine (10 dern. semaines)", relanceWeeks, "var(--chart-2)");
+
+    els.chartsWrap.innerHTML =
+      '<div class="viz-kpis">' + kpisHtml + '</div>' +
+      '<div class="charts-grid">' +
+        renderHBarChart("Répartition du pipeline par statut", statusRows) +
+        renderHBarChart("Répartition par closeur", closeurRows) +
+        renderWeekChart("Nouveaux leads par semaine (10 dern. semaines)", leadWeeks, "var(--chart-1)") +
+        relanceChartHtml +
+      '</div>' +
+      '<p class="chart-note">Survole une barre pour voir le détail exact. Les dates de leads au format JJ/MM/AAAA (saisies depuis la refonte du formulaire) et celles de l’import d’origine au format M/J/AA sont toutes les deux prises en compte — si une semaine te semble fausse, dis-le-moi et je vérifierai la fiche concernée.</p>';
+
+    wireTooltips(els.chartsWrap);
+  }
+
+  // ---------- drawer ----------
+  function setField(id, val){
+    var el = document.getElementById("fld-" + id);
+    if(el) el.value = val || "";
+  }
+  function getField(id){
+    var el = document.getElementById("fld-" + id);
+    return el ? el.value.trim() : "";
+  }
+
+  var CANAL_LABEL = {"email":"Email","téléphone":"Téléphone","sms":"SMS","visite":"Visite / RDV","autre":"Autre"};
+
+  function renderRelanceList(p){
+    var list = (p && Array.isArray(p.relances)) ? p.relances.slice() : [];
+    list.sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
+    if(list.length === 0){
+      els.relanceList.innerHTML = '<div class="relance-empty">Aucune relance enregistrée pour l\'instant.</div>';
+      return;
+    }
+    els.relanceList.innerHTML = list.map(function(r){
+      return '<div class="relance-item">' +
+        '<span class="rd">' + esc(fmtFr(r.date || "")) + '</span>' +
+        '<span class="rc">' + esc(CANAL_LABEL[r.canal] || r.canal || "?") + '</span>' +
+        '<span class="rr">' + esc(r.resume || r.sujet || "") + '</span>' +
+      '</div>';
+    }).join("");
+  }
+
+  async function addRelance(){
+    if(!state.db || !state.editingId) return;
+    var resume = els.relanceResume.value.trim();
+    if(!resume){ els.relanceResume.focus(); return; }
+    var p = state.prospects.find(function(x){return x.id === state.editingId;}) || {};
+    var current = Array.isArray(p.relances) ? p.relances.slice() : [];
+    var today = todayStr();
+    current.push({date: today, canal: els.relanceCanal.value, resume: resume});
+    els.btnAddRelance.disabled = true;
+    try{
+      await state.db.collection("prospects").doc(state.editingId).update({
+        relances: current,
+        nb_tentatives: tentatives(p) + 1
+      });
+      els.relanceResume.value = "";
+      renderRelanceList({relances: current});
+      setField("nb_tentatives", tentatives(p) + 1);
+    } catch(e){
+      console.error(e);
+    } finally {
+      els.btnAddRelance.disabled = false;
+    }
+  }
+
+  function openDrawer(id){
+    state.editingId = id || null;
+    var p = id ? state.prospects.find(function(x){return x.id === id;}) : null;
+    els.drawerTitle.textContent = p ? p.full_name || "Prospect" : "Nouveau prospect";
+    els.btnDelete.hidden = !p;
+    FIELD_IDS.forEach(function(f){ setField(f, p ? p[f] : ""); });
+    setField("phone", p ? fmtTel(p.phone) : "");
+    setField("notes", p ? notesToDisplay(p.notes) : "");
+    document.getElementById("fld-notes").scrollTop = 0;
+    if(p){
+      setField("date_arrivee", toIso(p.date_arrivee));
+      setField("date_rappel_precise", toIso(p.date_rappel_precise));
+      setField("date_dernier_appel", toIso(p.date_dernier_appel));
+    }
+    if(!p){
+      setField("date_arrivee", todayStr());
+      setField("status", "À contacter");
+    }
+    els.relanceSection.hidden = !p;
+    if(p){ renderRelanceList(p); els.relanceResume.value = ""; els.relanceCanal.value = "email"; }
+    els.deleteZone.innerHTML = els.btnDelete.hidden ? "" : '';
+    if(!els.btnDelete.hidden && !els.deleteZone.contains(els.btnDelete)) els.deleteZone.appendChild(els.btnDelete);
+    els.scrim.classList.add("open");
+    els.drawer.classList.add("open");
+    els.drawer.setAttribute("aria-hidden","false");
+  }
+  function closeDrawer(){
+    els.scrim.classList.remove("open");
+    els.drawer.classList.remove("open");
+    els.drawer.setAttribute("aria-hidden","true");
+    state.editingId = null;
+    els.deleteZone.innerHTML = "";
+    els.deleteZone.appendChild(els.btnDelete);
+  }
+
+  var CALL_BUSY = false;
+  async function applyCall(noAnswer){
+    if(CALL_BUSY) return;
+    CALL_BUSY = true;
+    var today = todayStr();
+    var hm = nowHM();
+    var notesEl = document.getElementById("fld-notes");
+    var rIso = toIso(getField("date_rappel_precise"));
+    var stale = !!(rIso && rIso <= today);
+    var stamp = "[" + todayFr() + " " + fmtHeure(hm) + "]";
+    var line = "";
+    if(noAnswer){
+      line = stamp + " Appel sans réponse" + (stale ? " (rappel prévu le " + fmtFr(rIso) + ")" : "") + ", à rappeler ultérieurement.";
+    } else {
+      line = stamp + " Appel passé, personne jointe" + (stale ? " (rappel prévu le " + fmtFr(rIso) + ")" : "") + ".";
+    }
+    var existingP = state.editingId ? (state.prospects.find(function(x){return x.id === state.editingId;}) || {}) : {};
+    var oNotes2 = existingP.notes == null ? "" : existingP.notes;
+    var rawNotes = (notesEl.value === notesToDisplay(oNotes2)) ? oNotes2 : displayToNotes(notesEl.value);
+    rawNotes = rawNotes.replace(/\s+$/, "");
+    var newNotes = rawNotes ? rawNotes + "\n" + line : line;
+    var changes = { date_dernier_appel: today, heure_dernier_appel: hm, notes: newNotes };
+    if(stale){ changes.date_rappel_precise = ""; changes.date_rappel = ""; changes.heure_rappel = ""; }
+
+    setField("date_dernier_appel", today);
+    setField("heure_dernier_appel", hm);
+    notesEl.value = notesToDisplay(newNotes);
+    notesEl.scrollTop = 0;
+    if(stale){ setField("date_rappel_precise", ""); setField("date_rappel", ""); setField("heure_rappel", ""); }
+
+    var btn = document.getElementById(noAnswer ? "btn-call-noanswer" : "btn-call-today");
+    var label = btn.textContent;
+    try{
+      if(state.db && state.editingId){
+        await state.db.collection("prospects").doc(state.editingId).update(changes);
+        btn.textContent = "Enregistré ✓";
+      } else {
+        btn.textContent = "Noté (pense à enregistrer)";
+      }
+    } catch(e){
+      console.error(e);
+      btn.textContent = "Erreur, réessaie";
+    } finally {
+      CALL_BUSY = false;
+      setTimeout(function(){ btn.textContent = label; }, 2200);
+    }
+  }
+
+  function collectForm(){
+    var data = {};
+    FIELD_IDS.forEach(function(f){ data[f] = getField(f); });
+    var existing = state.editingId ? (state.prospects.find(function(x){return x.id === state.editingId;}) || {}) : {};
+    // Les dates viennent des calendriers (AAAA-MM-JJ). On ne touche pas à une valeur d'origine
+    // inchangée ou illisible, pour ne jamais effacer une donnée par accident.
+    ["date_arrivee","date_rappel_precise","date_dernier_appel"].forEach(function(f){
+      var typed = data[f];
+      var orig = existing[f];
+      if(!typed){ data[f] = (orig && !toIso(orig)) ? orig : ""; return; }
+      if(orig && typed === toIso(orig)){ data[f] = orig; }
+    });
+    // Notes : si le texte affiché n'a pas changé, on garde l'original à l'octet près
+    var oNotes = existing.notes == null ? "" : existing.notes;
+    data.notes = (data.notes === notesToDisplay(oNotes)) ? oNotes : displayToNotes(data.notes);
+    // Téléphone : si inchangé on garde la valeur d'origine, sinon on enregistre des chiffres propres
+    var oPhone = existing.phone;
+    if(data.phone === fmtTel(oPhone)){ data.phone = oPhone == null ? "" : oPhone; }
+    else { data.phone = normPhone(data.phone); }
+    return data;
+  }
+
+  async function save(){
+    if(!state.db){ return; }
+    var data = collectForm();
+    if(!data.full_name){
+      var nameField = document.getElementById("fld-full_name");
+      nameField.style.borderColor = "var(--st-perdu)";
+      nameField.focus();
+      return;
+    }
+    els.btnSave.disabled = true;
+    els.btnSave.textContent = "Enregistrement…";
+    try{
+      if(state.editingId){
+        // Merge onto the existing document rather than replacing it wholesale —
+        // fields the form doesn't expose (relances, and anything future
+        // automations add) must survive a manual edit from this drawer.
+        var existing = state.prospects.find(function(x){return x.id === state.editingId;}) || {};
+        var merged = Object.assign({}, existing, data);
+        merged.order = existing.order || 0;
+        await state.db.collection("prospects").doc(state.editingId).set(merged);
+      } else {
+        var maxOrder = state.prospects.reduce(function(m,p){return Math.max(m, p.order||0);}, 0);
+        data.order = maxOrder + 1;
+        data.relances = [];
+        await state.db.collection("prospects").add(data);
+      }
+      closeDrawer();
+    } catch(e){
+      console.error(e);
+    } finally {
+      els.btnSave.disabled = false;
+      els.btnSave.textContent = "Enregistrer";
+    }
+  }
+
+  function confirmDelete(){
+    if(!state.editingId) return;
+    els.deleteZone.innerHTML =
+      '<div class="confirm-pop">Supprimer définitivement ?' +
+      '<button id="confirm-yes">Oui, supprimer</button>' +
+      '<button id="confirm-no">Annuler</button></div>';
+    document.getElementById("confirm-yes").addEventListener("click", doDelete);
+    document.getElementById("confirm-no").addEventListener("click", function(){
+      els.deleteZone.innerHTML = "";
+      els.deleteZone.appendChild(els.btnDelete);
+    });
+  }
+  async function doDelete(){
+    if(!state.db || !state.editingId) return;
+    try{
+      await state.db.collection("prospects").doc(state.editingId).delete();
+      closeDrawer();
+    } catch(e){ console.error(e); }
+  }
+
+  // ---------- wiring ----------
+  els.btnNew.addEventListener("click", function(){ openDrawer(null); });
+  els.drawerClose.addEventListener("click", closeDrawer);
+  els.btnCancel.addEventListener("click", closeDrawer);
+  els.scrim.addEventListener("click", closeDrawer);
+  els.btnSave.addEventListener("click", save);
+  els.btnDelete.addEventListener("click", confirmDelete);
+  els.btnAddRelance.addEventListener("click", addRelance);
+  document.getElementById("btn-call-today").addEventListener("click", function(){ applyCall(false); });
+  document.getElementById("btn-call-noanswer").addEventListener("click", function(){ applyCall(true); });
+  Array.prototype.forEach.call(document.querySelectorAll(".clear-time"), function(b){
+    b.addEventListener("click", function(){ setField(b.getAttribute("data-target"), ""); });
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && els.drawer.classList.contains("open")) closeDrawer();
+  });
+  document.getElementById("fld-full_name").addEventListener("input", function(){ this.style.borderColor = ""; });
+
+  els.q.addEventListener("input", renderList);
+  els.fTimeline.addEventListener("change", renderList);
+  els.fCloseur.addEventListener("change", renderList);
+  els.sort.addEventListener("change", renderList);
+  els.btnReset.addEventListener("click", function(){
+    els.q.value = ""; state.activeStatus = null; els.fTimeline.value = ""; els.fCloseur.value = "";
+    state.viewTab = "all";
+    renderTabs(); renderStats(); renderList();
+  });
+
+  // ---------- boot ----------
+  function showBootDiag(title, msg){
+    state.ready = true;
+    els.listWrap.innerHTML = '<div class="empty"><h3>' + esc(title) + '</h3>' +
+      '<p style="font-family:\'IBM Plex Mono\',monospace; font-size:11px; white-space:pre-wrap; text-align:left; max-width:640px; margin:10px auto 0; color:var(--st-perdu);">' + esc(msg) + '</p>' +
+      '<p style="margin-top:14px;"><button class="btn btn-ghost btn-sm" id="btn-retry-boot">Réessayer</button></p></div>';
+    var b = document.getElementById("btn-retry-boot");
+    if(b) b.addEventListener("click", function(){ els.listWrap.innerHTML = '<div class="loading">Chargement du pipeline…</div>'; boot(); });
+  }
+
+  function applySnapshot(snap){
+    state.prospects = snap.docs.map(function(d){
+      // d.data() is frozen by the platform — never mutate it directly.
+      // Clone into a fresh, extensible object before adding `id`.
+      var raw = d.data() || {};
+      var data = {};
+      for(var k in raw){ if(Object.prototype.hasOwnProperty.call(raw, k)) data[k] = raw[k]; }
+      data.id = d.id;
+      return data;
+    });
+    state.ready = true;
+    refresh();
+  }
+
+  async function boot(){
+    var db = null;
+    try{
+      db = window.claude && window.claude.use ? await window.claude.use("db") : null;
+    }catch(e){
+      showBootDiag("Erreur : use(\"db\") a échoué", String(e && (e.stack || e.message) || e));
+      return;
+    }
+    state.db = db;
+    if(!db){
+      els.listWrap.innerHTML = '<div class="empty"><h3>Données indisponibles</h3><p>Cette page a besoin de l\'accès aux données en direct pour afficher et modifier le pipeline. Réessaie de l\'ouvrir depuis Claude.</p></div>';
+      els.btnNew.disabled = true;
+      return;
+    }
+
+    var delivered = false;
+
+    // Fallback: if the realtime listener hasn't delivered anything within
+    // 7s, fall back to a one-shot get() so the page still becomes usable,
+    // and surface what actually happened instead of spinning forever.
+    var fallbackTimer = setTimeout(function(){
+      if(delivered) return;
+      db.collection("prospects").get().then(function(snap){
+        if(delivered) return;
+        delivered = true;
+        applySnapshot(snap);
+      }).catch(function(e){
+        if(delivered) return;
+        delivered = true;
+        showBootDiag(
+          "onSnapshot n'a rien délivré après 7s, et le fallback get() a aussi échoué",
+          "get() error: " + JSON.stringify(e, Object.getOwnPropertyNames(e || {}))
+        );
+      });
+    }, 7000);
+
+    try{
+      db.collection("prospects").onSnapshot(function(snap){
+        delivered = true;
+        clearTimeout(fallbackTimer);
+        try{
+          applySnapshot(snap);
+        }catch(innerErr){
+          showBootDiag("onSnapshot a répondu mais le traitement a échoué", String(innerErr && (innerErr.stack || innerErr.message) || innerErr));
+        }
+      }, function(err){
+        delivered = true;
+        clearTimeout(fallbackTimer);
+        console.error("db error", err);
+        showBootDiag("onSnapshot a renvoyé une erreur", JSON.stringify(err, Object.getOwnPropertyNames(err || {})));
+      });
+    }catch(syncErr){
+      delivered = true;
+      clearTimeout(fallbackTimer);
+      showBootDiag("onSnapshot a levé une exception synchrone", String(syncErr && (syncErr.stack || syncErr.message) || syncErr));
+    }
+  }
+
+  function start(){
+    refresh();
+    boot();
+  }
+
+  if(window.claude && window.claude.hot){
+    window.claude.hot.ready ? window.claude.hot.ready(start) : start();
+  } else {
+    start();
+  }
+})();
+</script>
+
+
+</body></html>

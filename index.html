@@ -427,7 +427,7 @@
   }
 </style>
 
-<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 16h35</span></div>
+<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 16h40</span></div>
 <div class="wrap">
   <header class="top">
     <div>
@@ -1683,7 +1683,7 @@
     var digits = normPhone(getField("phone"));
     if(!digits){ alert("Pas de numéro sur cette fiche."); return; }
     var txt = msgTpl.value.trim() || MSG_DEF;
-    var url = kind === "wa" ? "https://wa.me/" + digits + "?text=" + encodeURIComponent(txt) : "sms:+" + digits + "&body=" + encodeURIComponent(txt);
+    var url = kind === "wa" ? "https://web.whatsapp.com/send?phone=" + digits + "&text=" + encodeURIComponent(txt) : "sms:+" + digits + "&body=" + encodeURIComponent(txt);
     var existingP = state.editingId ? (state.prospects.find(function(x){return x.id === state.editingId;}) || {}) : {};
     var notesEl = document.getElementById("fld-notes");
     var oN = existingP.notes == null ? "" : existingP.notes;
@@ -1693,7 +1693,7 @@
     var nn = raw ? raw + "\n" + line : line;
     notesEl.value = notesToDisplay(nn);
     try{ if(state.db && state.editingId) await state.db.collection("prospects").doc(state.editingId).update({notes:nn}); }catch(e){ console.error(e); }
-    window.location.href = url;
+    if(kind === "wa"){ window.open(url, "pl_whatsapp"); } else { window.location.href = url; }
   }
   document.getElementById("btn-msg-copy").addEventListener("click", function(){
     var b = this, t = msgTpl.value.trim() || MSG_DEF;

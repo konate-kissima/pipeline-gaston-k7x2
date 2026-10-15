@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Pipeline"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="format-detection" content="telephone=no"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Pipeline Tiny House</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -234,6 +234,18 @@
   .toolbar select{max-width:170px; flex:0 1 auto;}
   .toolbar{max-width:100%; box-sizing:border-box;}
   .visio-b{display:inline-block;background:var(--st-closing-soft,#e8f0ff);color:var(--st-closing,#2557c7);font-weight:700;font-size:12px;border-radius:8px;padding:3px 8px;margin-bottom:4px}
+  .msg-box{margin-top:10px;border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--surface-2)}
+  .msg-box.flash{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .msg-h{font-size:12.5px;font-weight:700;margin-bottom:6px}
+  .msg-box textarea{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:9px;padding:8px 10px;background:var(--bg);color:var(--ink);font:13.5px/1.4 inherit;resize:vertical}
+  @media (max-width:700px){
+    input,select,textarea{font-size:16px !important}
+    .btn{min-height:44px}
+    .tab-btn{padding:12px 10px}
+    .toolbar select{max-width:none;flex:1 1 45%}
+    .wrap{padding-left:12px;padding-right:12px}
+    .pl-btn{min-height:44px}
+  }
   .count-pill{
     font-size:12.5px; color:var(--ink-2); margin-left:auto; white-space:nowrap;
     font-weight:600;
@@ -415,7 +427,7 @@
   }
 </style>
 
-<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 16h10</span></div>
+<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 16h25</span></div>
 <div class="wrap">
   <header class="top">
     <div>
@@ -586,6 +598,14 @@
           <div class="date-row" style="margin-top:6px;">
             <button type="button" class="btn btn-ghost btn-sm" id="btn-call-today">Appelé aujourd'hui</button>
             <button type="button" class="btn btn-ghost btn-sm" id="btn-call-noanswer">Pas de réponse</button>
+          </div>
+          <div class="msg-box" id="msg-box">
+            <div class="msg-h">💬 Message au prospect (sans réponse)</div>
+            <textarea id="msg-tpl" rows="3" aria-label="Texte du message"></textarea>
+            <div class="date-row" style="margin-top:6px;">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-msg-wa">WhatsApp</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-msg-sms">SMS</button>
+            </div>
           </div>
           <div class="hint"><b>Appelé aujourd'hui</b> = tu as eu la personne au téléphone. <b>Pas de réponse</b> = tentative d'appel sans retour, notée « à rappeler ». Dans les deux cas, chaque appel est ajouté aux notes avec la date et l'heure, et un rappel déjà passé est remis à zéro. Ça ne change pas les relances automatiques par email.</div>
         </div>
@@ -1554,6 +1574,7 @@
       if(state.db && state.editingId){
         await state.db.collection("prospects").doc(state.editingId).update(changes);
         btn.textContent = "Enregistré ✓";
+        if(noAnswer){ var mb = document.getElementById("msg-box"); mb.classList.add("flash"); mb.scrollIntoView({block:"center",behavior:"smooth"}); setTimeout(function(){ mb.classList.remove("flash"); }, 6000); }
       } else {
         btn.textContent = "Noté (pense à enregistrer)";
       }
@@ -1653,6 +1674,28 @@
   els.btnAddRelance.addEventListener("click", addRelance);
   document.getElementById("btn-call-today").addEventListener("click", function(){ applyCall(false); });
   document.getElementById("btn-call-noanswer").addEventListener("click", function(){ applyCall(true); });
+  var MSG_DEF = "Bonjour, c'est Kissima de Gaston Tiny Home Village. J'ai essayé de vous joindre au sujet de votre projet de tiny house. À quel moment puis-je vous rappeler ? À très vite.";
+  var msgTpl = document.getElementById("msg-tpl");
+  try{ msgTpl.value = localStorage.getItem("pl_msg_tpl") || MSG_DEF; }catch(e){ msgTpl.value = MSG_DEF; }
+  msgTpl.addEventListener("change", function(){ try{ localStorage.setItem("pl_msg_tpl", msgTpl.value); }catch(e){} });
+  async function sendMsg(kind){
+    var digits = normPhone(getField("phone"));
+    if(!digits){ alert("Pas de numéro sur cette fiche."); return; }
+    var txt = msgTpl.value.trim() || MSG_DEF;
+    var url = kind === "wa" ? "https://wa.me/" + digits + "?text=" + encodeURIComponent(txt) : "sms:+" + digits + "&body=" + encodeURIComponent(txt);
+    var existingP = state.editingId ? (state.prospects.find(function(x){return x.id === state.editingId;}) || {}) : {};
+    var notesEl = document.getElementById("fld-notes");
+    var oN = existingP.notes == null ? "" : existingP.notes;
+    var raw = (notesEl.value === notesToDisplay(oN)) ? oN : displayToNotes(notesEl.value);
+    raw = raw.replace(/\s+$/, "");
+    var line = "[" + todayFr() + " " + fmtHeure(nowHM()) + "] Message envoyé (" + (kind === "wa" ? "WhatsApp" : "SMS") + ") après appel sans réponse.";
+    var nn = raw ? raw + "\n" + line : line;
+    notesEl.value = notesToDisplay(nn);
+    try{ if(state.db && state.editingId) await state.db.collection("prospects").doc(state.editingId).update({notes:nn}); }catch(e){ console.error(e); }
+    window.location.href = url;
+  }
+  document.getElementById("btn-msg-wa").addEventListener("click", function(){ sendMsg("wa"); });
+  document.getElementById("btn-msg-sms").addEventListener("click", function(){ sendMsg("sms"); });
   Array.prototype.forEach.call(document.querySelectorAll(".clear-time"), function(b){
     b.addEventListener("click", function(){ setField(b.getAttribute("data-target"), ""); });
   });

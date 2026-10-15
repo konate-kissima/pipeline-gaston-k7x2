@@ -427,7 +427,7 @@
   }
 </style>
 
-<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 17h00</span></div>
+<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 18h35</span></div>
 <div class="wrap">
   <header class="top">
     <div>
@@ -2180,7 +2180,7 @@
     P.prospects().forEach(function(p){
       var vIso = P.toIso(p.visio_date), vm = hm2min(p.visio_heure);
       var vdone = p.visio_statut === "eue" || p.visio_statut === "annulée";
-      if(vIso && vm !== null && !vdone && (vIso < today || nowMin - vm >= 5)){
+      if(vIso && vm !== null && !vdone && (vIso < today || (vIso === today && nowMin - vm >= 5))){
         var qd = new Date(vIso + "T00:00:00"), age = (new Date(today + "T00:00:00") - qd)/86400000;
         var qkey = "q|" + p.id + "|" + vIso + "|" + p.visio_heure, qa = ack[qkey];
         if(age <= 3 && !(qa && qa > Date.now())) out.push({p:p, key:qkey, rm:vm - age*1440, diff:vm - nowMin, visioQ:true});

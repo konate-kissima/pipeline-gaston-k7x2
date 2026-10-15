@@ -233,6 +233,7 @@
   select{cursor:pointer; max-width:100%; min-width:0; text-overflow:ellipsis;}
   .toolbar select{max-width:170px; flex:0 1 auto;}
   .toolbar{max-width:100%; box-sizing:border-box;}
+  .visio-b{display:inline-block;background:var(--st-closing-soft,#e8f0ff);color:var(--st-closing,#2557c7);font-weight:700;font-size:12px;border-radius:8px;padding:3px 8px;margin-bottom:4px}
   .count-pill{
     font-size:12.5px; color:var(--ink-2); margin-left:auto; white-space:nowrap;
     font-weight:600;
@@ -598,6 +599,15 @@
           <div class="hint">Choisis le jour dans le calendrier, et l'heure seulement s'il y en a une. Si la date est dépassée sans appel, la fiche passe « En retard ».</div>
         </div>
         <div class="field" style="grid-column:1 / -1;">
+          <label for="fld-visio_date">📹 Visio prévue</label>
+          <div class="date-row">
+            <input id="fld-visio_date" type="date">
+            <input id="fld-visio_heure" type="time" aria-label="Heure de la visio" title="Heure de la visio">
+            <input id="fld-visio_lien" type="url" placeholder="Lien de la visio (Meet, Zoom…)" style="flex:1;min-width:0">
+          </div>
+          <div class="hint">Renseigne la date, l'heure et le lien : un badge apparaît sur la fiche et un pop-up s'ouvre 10 minutes avant. Vide la date pour retirer la visio.</div>
+        </div>
+        <div class="field" style="grid-column:1 / -1;">
           <label for="fld-date_rappel">Rappel : note (facultatif)</label>
           <input id="fld-date_rappel" type="text" placeholder="ex. il revient de voyage">
           <div class="hint">Un mémo libre. Ne déclenche rien.</div>
@@ -711,7 +721,7 @@
 <script>
 (function(){
   var SB = supabase.createClient("https://tsgiijsgghkarawbbhqu.supabase.co","sb_publishable_20MUEHfBs_kSiOe5xPIOsw_3BmPniT_"); window.__SB = SB;
-  var COLS = ["full_name","phone","email","email2","region","closeur","terrain","deja_investi","objectif","budget","timeline","type_bien","status","date_rappel","date_rappel_precise","heure_rappel","nb_tentatives","date_arrivee","date_dernier_appel","heure_dernier_appel","source","notes","montage_financier","devis","montant","banque","permis","livraison","jalon1","jalon2"];
+  var COLS = ["full_name","phone","email","email2","region","closeur","terrain","deja_investi","objectif","budget","timeline","type_bien","status","date_rappel","date_rappel_precise","heure_rappel","nb_tentatives","date_arrivee","date_dernier_appel","heure_dernier_appel","source","notes","montage_financier","devis","montant","banque","permis","livraison","jalon1","jalon2","visio_date","visio_heure","visio_lien"];
   var KNOWN = {}; COLS.forEach(function(c){KNOWN[c]=1;}); KNOWN.id=1; KNOWN.order=1; KNOWN.relances=1;
   function fromRow(r){
     var o = Object.assign({}, r.extra || {});
@@ -815,7 +825,7 @@
   var FIELD_IDS = ["full_name","phone","email","email2","region","closeur","terrain","deja_investi",
     "objectif","budget","timeline","type_bien","status","date_rappel","date_rappel_precise",
     "nb_tentatives","date_arrivee","date_dernier_appel","heure_dernier_appel","heure_rappel","notes",
-    "montage_financier","devis","montant","banque","permis","livraison","jalon1","jalon2"];
+    "montage_financier","devis","montant","banque","permis","livraison","jalon1","jalon2","visio_date","visio_heure","visio_lien"];
 
   var els = {
     viewTabs: document.getElementById("view-tabs"),
@@ -1179,6 +1189,10 @@
   }
   function callbackHtml(p){
     var html = callbackHtmlBase(p);
+    var vi = toIso(p.visio_date);
+    if(vi && vi >= todayStr()){
+      html = '<span class="visio-b">📹 Visio ' + esc(fmtFr(vi) + (p.visio_heure ? " à " + fmtHeure(p.visio_heure) : "")) + '</span>' + html;
+    }
     if(p.date_dernier_appel){
       html += '<span class="lastcall">Dernier appel : <b>' + esc(fmtFr(p.date_dernier_appel) + (p.heure_dernier_appel ? " à " + fmtHeure(p.heure_dernier_appel) : "")) + '</b></span>';
     }
@@ -1519,6 +1533,11 @@
     var newNotes = rawNotes ? rawNotes + "\n" + line : line;
     var changes = { date_dernier_appel: today, heure_dernier_appel: hm, notes: newNotes };
     if(stale){ changes.date_rappel_precise = ""; changes.date_rappel = ""; changes.heure_rappel = ""; }
+    if(noAnswer){
+      var curN = parseInt(getField("nb_tentatives") || existingP.nb_tentatives, 10);
+      changes.nb_tentatives = String((isNaN(curN) ? 0 : curN) + 1);
+      setField("nb_tentatives", changes.nb_tentatives);
+    }
 
     setField("date_dernier_appel", today);
     setField("heure_dernier_appel", hm);
@@ -1550,7 +1569,7 @@
     var existing = state.editingId ? (state.prospects.find(function(x){return x.id === state.editingId;}) || {}) : {};
     // Les dates viennent des calendriers (AAAA-MM-JJ). On ne touche pas à une valeur d'origine
     // inchangée ou illisible, pour ne jamais effacer une donnée par accident.
-    ["date_arrivee","date_rappel_precise","date_dernier_appel"].forEach(function(f){
+    ["date_arrivee","date_rappel_precise","date_dernier_appel","visio_date"].forEach(function(f){
       var typed = data[f];
       var orig = existing[f];
       if(!typed){ data[f] = (orig && !toIso(orig)) ? orig : ""; return; }
@@ -2079,6 +2098,12 @@
     var P = PL(); if(!P || !P.ready()) return [];
     var today = P.todayStr(), d = new Date(), nowMin = d.getHours()*60 + d.getMinutes(), ack = ackGet(), out = [];
     P.prospects().forEach(function(p){
+      var vIso = P.toIso(p.visio_date), vm = hm2min(p.visio_heure);
+      if(vIso === today && vm !== null){
+        var vkey = "v|" + p.id + "|" + vIso + "|" + p.visio_heure, va = ack[vkey];
+        if(vm - nowMin <= 10 && nowMin - vm <= 45 && !(va === "done" || (va && va > Date.now()))) out.push({p:p, key:vkey, rm:vm, diff:vm - nowMin, visio:true});
+      }
+      if(vIso === today) return;
       if(p.status !== "Rappel programmé") return;
       if(P.toIso(p.date_rappel_precise) !== today) return;
       var rm = hm2min(p.heure_rappel); if(rm === null) return;
@@ -2123,16 +2148,22 @@
     popSig = sig;
     popEl = el("div","pl-ov"); popEl.setAttribute("data-kind","due");
     var box = el("div","pl-box");
-    box.appendChild(el("h3", null, items.length > 1 ? "🔔 " + items.length + " personnes à rappeler" : "🔔 C'est le moment de rappeler"));
+    var hasV = items.some(function(i){ return i.visio; }), allV = items.every(function(i){ return i.visio; });
+    box.appendChild(el("h3", null, items.length > 1 ? "🔔 " + items.length + (allV ? " visios" : " rappels") + " imminents" : (hasV ? "📹 Visio imminente" : "🔔 C'est le moment de rappeler")));
     box.appendChild(el("p","sub","Rappels programmés dans les 10 prochaines minutes ou déjà à l'heure."));
     items.forEach(function(it){
       var p = it.p, card = el("div","pl-item");
       card.appendChild(el("div","nm", p.full_name || "(sans nom)"));
-      card.appendChild(el("div","wh", when(it.diff) + " (" + P.fmtHeure(p.heure_rappel) + ")" + (p.date_rappel ? " · " + p.date_rappel : "")));
+      card.appendChild(el("div","wh", (it.visio ? "📹 Visio — " : "") + when(it.diff).replace("Rappel prévu", it.visio ? "Début" : "Rappel prévu") + " (" + P.fmtHeure(it.visio ? p.visio_heure : p.heure_rappel) + ")" + (!it.visio && p.date_rappel ? " · " + p.date_rappel : "")));
       var note = P.notesForList(p.notes || "").split("\n")[0] || "";
       if(note) card.appendChild(el("div","nt", note));
       var row = el("div","pl-row");
-      if(p.phone){
+      if(it.visio && p.visio_lien){
+        var vl = el("a","pl-btn p","📹 Rejoindre la visio"); vl.href = p.visio_lien; vl.target = "_blank"; vl.rel = "noopener";
+        vl.addEventListener("click", function(){ snooze(it.key, 45); setTimeout(checkDue, 50); });
+        row.appendChild(vl);
+      }
+      if(p.phone && !(it.visio && p.visio_lien)){
         var a = el("a","pl-btn p","📞 Appeler " + P.fmtTel(p.phone)); a.href = P.telHref(p.phone);
         a.addEventListener("click", function(){ snooze(it.key, 30); setTimeout(checkDue, 50); });
         row.appendChild(a);
@@ -2156,13 +2187,14 @@
     var today = P.todayStr();
     if(!S.id || sget("pl_dsum") === S.id) return;
     if(popEl){ setTimeout(dailySummary, 5000); return; }
-    var todayList = [], late = [];
+    var todayList = [], late = [], vis = [];
     P.prospects().forEach(function(p){
+      if(P.toIso(p.visio_date) === today) vis.push(p);
       if(P.isOverdue(p)) late.push(p);
       else if(p.status === "Rappel programmé" && P.toIso(p.date_rappel_precise) === today) todayList.push(p);
     });
     sset("pl_dsum", S.id);
-    if(!todayList.length && !late.length) return;
+    if(!todayList.length && !late.length && !vis.length) return;
     todayList.sort(function(a,b){ return (hm2min(a.heure_rappel) == null ? 9999 : hm2min(a.heure_rappel)) - (hm2min(b.heure_rappel) == null ? 9999 : hm2min(b.heure_rappel)); });
     popEl = el("div","pl-ov"); popEl.setAttribute("data-kind","daily");
     var box = el("div","pl-box");
@@ -2175,6 +2207,13 @@
       arr.slice(0,10).forEach(function(p){ ul.appendChild(el("li", null, (withHour && p.heure_rappel ? P.fmtHeure(p.heure_rappel) + " — " : "") + (p.full_name || "(sans nom)") + (!withHour && p.date_rappel_precise ? " (prévu le " + P.fmtFr(p.date_rappel_precise) + ")" : ""))); });
       if(arr.length > 10) ul.appendChild(el("li", null, "… et " + (arr.length - 10) + " autres"));
       box.appendChild(ul);
+    }
+    if(vis.length){
+      box.appendChild(el("div","section-label", "📹 Visios aujourd'hui"));
+      var vu = el("ul","pl-list");
+      vis.sort(function(a,b){ return (a.visio_heure||"").localeCompare(b.visio_heure||""); });
+      vis.forEach(function(p){ vu.appendChild(el("li", null, (p.visio_heure ? P.fmtHeure(p.visio_heure) + " — " : "") + (p.full_name || "(sans nom)"))); });
+      box.appendChild(vu);
     }
     list("À rappeler aujourd'hui", todayList, true);
     list("En retard", late, false);

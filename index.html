@@ -230,7 +230,9 @@
     border:1px solid var(--border); border-radius:9px; padding:8px 10px;
     background:var(--bg); color:var(--ink); font-size:13.5px; font-family:inherit;
   }
-  select{cursor:pointer;}
+  select{cursor:pointer; max-width:100%; min-width:0; text-overflow:ellipsis;}
+  .toolbar select{max-width:170px; flex:0 1 auto;}
+  .toolbar{max-width:100%; box-sizing:border-box;}
   .count-pill{
     font-size:12.5px; color:var(--ink-2); margin-left:auto; white-space:nowrap;
     font-weight:600;
@@ -780,9 +782,18 @@
       loTimer = setTimeout(function(){ lo.classList.remove("confirm"); lo.textContent = "↩ Déconnexion"; }, 4000);
       return;
     }
-    clearTimeout(loTimer); lo.disabled = true; lo.textContent = "Envoi du récap…";
-    try{ if(window.__ACT && window.__ACT.endSession) await Promise.race([window.__ACT.endSession(), new Promise(function(r){ setTimeout(r, 5000); })]); }catch(e){ console.error(e); }
-    await SB.auth.signOut(); location.reload();
+    clearTimeout(loTimer); lo.disabled = true; lo.textContent = "Récap en cours…";
+    var res = null;
+    try{ if(window.__ACT && window.__ACT.endSession) res = await Promise.race([window.__ACT.endSession(), new Promise(function(r){ setTimeout(function(){ r(null); }, 6000); })]); }catch(e){ console.error(e); }
+    var ov = document.createElement("div"); ov.className = "pl-ov";
+    var bx = document.createElement("div"); bx.className = "pl-box";
+    var h3 = document.createElement("h3"); h3.textContent = "À demain 👋"; bx.appendChild(h3);
+    var pre = document.createElement("div"); pre.style.cssText = "white-space:pre-wrap;font-size:13.5px;line-height:1.55;margin:10px 0 16px;color:var(--ink)";
+    pre.textContent = (res && res.text) ? res.text : "Pas d'activité à récapituler sur cette session.";
+    bx.appendChild(pre);
+    var bt = document.createElement("button"); bt.className = "pl-btn p"; bt.type = "button"; bt.textContent = "Se déconnecter";
+    bt.addEventListener("click", async function(){ bt.disabled = true; await SB.auth.signOut(); location.reload(); });
+    bx.appendChild(bt); ov.appendChild(bx); document.body.appendChild(ov);
   });
 })();
 </script>
@@ -954,10 +965,17 @@
     return isNaN(n) ? 0 : n;
   }
 
+  function isNewLead(p){
+    return p.status === "À contacter" && tentatives(p) === 0 && !String(p.date_dernier_appel || "").trim() &&
+      !(Array.isArray(p.relances) && p.relances.length);
+  }
+
   var TAB_DEFS = [
     { id:"all", label:"Tous les prospects", match:function(){ return true; } },
     { id:"leads", label:"Nouveaux leads", sort:"order-asc",
-      match:function(p){ return p.status === "À contacter" && tentatives(p) === 0; } },
+      match:function(p){ return isNewLead(p); } },
+    { id:"acontacter", label:"À contacter", sort:"order-asc",
+      match:function(p){ return p.status === "À contacter" && !isNewLead(p); } },
     { id:"retard", label:"⚠ Rappels en retard", sort:"callback-asc", alert:true,
       match:function(p){ return isOverdue(p); } },
     { id:"rappels", label:"Rappels programmés", sort:"callback-asc", statusHighlight:"Rappel programmé",
@@ -1818,6 +1836,8 @@
 .seg button{border:0;background:transparent;color:var(--ink-2);font:600 13px 'Public Sans',sans-serif;padding:7px 12px;cursor:pointer}
 .seg button+button{border-left:1px solid var(--border)}
 .seg button.on{background:var(--accent);color:var(--accent-ink)}
+.act-custom{display:flex;gap:14px;flex-wrap:wrap;margin:-4px 0 12px;font-size:13px;color:var(--ink-2)}
+.act-custom input{border:1px solid var(--border);border-radius:9px;padding:6px 9px;background:var(--bg);color:var(--ink);font:13px inherit;margin-left:6px}
 .act-live{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-2)}
 .act-live b{color:var(--ink);font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
 .act-live .dot{width:9px;height:9px;border-radius:50%;background:var(--st-vente);display:inline-block;margin-right:6px}
@@ -1928,11 +1948,17 @@
     await startSession({email:S.email});
   }
   async function endSession(){
-    if(!S.id) return "none";
+    if(!S.id) return {status:"none", text:null};
     S.on = false;
     await beat();
-    var out = "ok";
-    try{ var r = await SB.rpc("session_recap", {sid:S.id}); out = r.data || (r.error && r.error.message) || "ok"; }catch(e){ out = String(e); }
+    var out = {status:"ok", text:null};
+    try{
+      var r = await SB.rpc("session_recap", {sid:S.id}); out.status = r.data || (r.error && r.error.message) || "ok";
+      if(out.status === "sent"){
+        var n = await SB.from("notifications").select("text").eq("source","recap").order("id",{ascending:false}).limit(1);
+        if(n.data && n.data[0]) out.text = n.data[0].text;
+      }
+    }catch(e){ out.status = String(e); }
     sset("pl_sid", "");
     return out;
   }
@@ -2056,7 +2082,7 @@
       if(p.status !== "Rappel programmé") return;
       if(P.toIso(p.date_rappel_precise) !== today) return;
       var rm = hm2min(p.heure_rappel); if(rm === null) return;
-      if(rm - nowMin > 5) return;
+      if(rm - nowMin > 10) return;
       var lm = hm2min(p.heure_dernier_appel);
       if(P.toIso(p.date_dernier_appel) === today && lm !== null && lm >= rm - 30) return;
       var key = p.id + "|" + today + "|" + p.heure_rappel, a = ack[key];
@@ -2098,7 +2124,7 @@
     popEl = el("div","pl-ov"); popEl.setAttribute("data-kind","due");
     var box = el("div","pl-box");
     box.appendChild(el("h3", null, items.length > 1 ? "🔔 " + items.length + " personnes à rappeler" : "🔔 C'est le moment de rappeler"));
-    box.appendChild(el("p","sub","Rappels programmés pour maintenant."));
+    box.appendChild(el("p","sub","Rappels programmés dans les 10 prochaines minutes ou déjà à l'heure."));
     items.forEach(function(it){
       var p = it.p, card = el("div","pl-item");
       card.appendChild(el("div","nm", p.full_name || "(sans nom)"));
@@ -2127,17 +2153,16 @@
 
   function dailySummary(){
     var P = PL(); if(!P || !P.ready()) return;
-    var d = new Date(); if(d.getHours() < 6) return;
     var today = P.todayStr();
-    if(lget("pl_daily") === today) return;
+    if(!S.id || sget("pl_dsum") === S.id) return;
+    if(popEl){ setTimeout(dailySummary, 5000); return; }
     var todayList = [], late = [];
     P.prospects().forEach(function(p){
       if(P.isOverdue(p)) late.push(p);
       else if(p.status === "Rappel programmé" && P.toIso(p.date_rappel_precise) === today) todayList.push(p);
     });
-    lset("pl_daily", today);
+    sset("pl_dsum", S.id);
     if(!todayList.length && !late.length) return;
-    if(popEl) return;
     todayList.sort(function(a,b){ return (hm2min(a.heure_rappel) == null ? 9999 : hm2min(a.heure_rappel)) - (hm2min(b.heure_rappel) == null ? 9999 : hm2min(b.heure_rappel)); });
     popEl = el("div","pl-ov"); popEl.setAttribute("data-kind","daily");
     var box = el("div","pl-box");
@@ -2159,14 +2184,15 @@
     var b3 = el("button","pl-btn","OK"); b3.type = "button"; b3.addEventListener("click", closePop); row.appendChild(b3);
     box.appendChild(row); popEl.appendChild(box); document.body.appendChild(popEl);
   }
-  setTimeout(function(){ dailySummary(); checkDue(); }, 4000);
+  (function waitSummary(){ var P = PL(); if(!S.id || !P || !P.ready()){ setTimeout(waitSummary, 1500); return; } dailySummary(); checkDue(); })();
   setInterval(function(){ if(!popEl || popEl.getAttribute("data-kind") === "due") checkDue(); }, 15000);
 
   // =====================================================================
   // 3. STATISTIQUES EN TEMPS RÉEL + HISTORIQUE
   // =====================================================================
   var root = null, period = "today", D = {events:[], sessions:[], at:0}, fetching = false, pending = false, subscribed = false;
-  var PERIODS = [["today","Aujourd'hui"],["yesterday","Hier"],["7d","7 jours"],["30d","30 jours"],["month","Ce mois"]];
+  var PERIODS = [["today","Aujourd'hui"],["yesterday","Hier"],["7d","7 jours"],["30d","30 jours"],["month","Ce mois"],["custom","Dates libres"]];
+  var cFrom = ymd(new Date(Date.now()-6*86400000)), cTo = ymd(new Date());
 
   function range(per){
     var now = new Date(), s = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -2175,6 +2201,13 @@
     if(per === "yesterday") return {from:add(s,-1), to:s, pf:add(s,-2), pt:add(s,-1), label:"la veille", hourly:true};
     if(per === "7d") return {from:add(s,-6), to:add(s,1), pf:add(s,-13), pt:add(s,-6), label:"les 7 j précédents", hourly:false};
     if(per === "30d") return {from:add(s,-29), to:add(s,1), pf:add(s,-59), pt:add(s,-29), label:"les 30 j précédents", hourly:false};
+    if(per === "custom"){
+      var a = new Date(cFrom + "T00:00:00"), b = new Date(cTo + "T00:00:00");
+      if(isNaN(a) || isNaN(b)){ a = add(s,-6); b = s; }
+      if(b < a){ var t = a; a = b; b = t; }
+      var to = add(b,1), days = Math.round((to - a)/86400000);
+      return {from:a, to:to, pf:add(a,-days), pt:a, label:"la période précédente", hourly:days <= 1};
+    }
     var m0 = new Date(now.getFullYear(), now.getMonth(), 1), pm = new Date(now.getFullYear(), now.getMonth()-1, 1);
     return {from:m0, to:add(s,1), pf:pm, pt:m0, label:"le mois précédent", hourly:false};
   }
@@ -2321,6 +2354,7 @@
     var rate = a.calls ? Math.round(a.cr/a.calls*100) : null, prate = p.calls ? Math.round(p.cr/p.calls*100) : null;
     var perH = a.act >= 600 && a.calls ? (Math.round(a.calls*3600/a.act*10)/10).toString().replace(".", ",") : "—";
     var h = '<div class="act-top"><h2>Activité</h2><div class="seg" id="act-seg">' + PERIODS.map(function(x){ return '<button type="button" data-p="' + x[0] + '" class="' + (x[0] === period ? "on" : "") + '">' + x[1] + "</button>"; }).join("") + "</div></div>";
+    if(period === "custom") h += '<div class="act-custom"><label>Du <input type="date" id="act-from" value="' + cFrom + '"></label><label>au <input type="date" id="act-to" value="' + cTo + '"></label></div>';
     h += '<div id="act-err" class="chart-note" style="color:var(--st-perdu)"></div>';
     h += '<div class="act-live"><span><span class="dot"></span><b id="act-live-t">' + chipText() + "</b></span><span>Session démarrée à <b>" + hhmm(new Date(S.started)) + "</b></span><span>Mise à jour en direct</span></div>";
     h += '<div class="act-kpis">' +
@@ -2337,6 +2371,9 @@
     h += '<div class="act-grid">' + stackedChart(r, a) + bestHours() + "</div>";
     h += '<div class="act-grid"><div class="chart-card"><div class="chart-title">Dernières actions</div>' + feedHtml() + '</div><div class="chart-card"><div class="chart-title">Sessions de travail</div>' + sessionsHtml(r) + "</div></div>";
     root.innerHTML = h;
+    var cf = $("act-from"), ct = $("act-to");
+    if(cf) cf.addEventListener("change", function(){ if(cf.value){ cFrom = cf.value; render(); } });
+    if(ct) ct.addEventListener("change", function(){ if(ct.value){ cTo = ct.value; render(); } });
     Array.prototype.forEach.call(root.querySelectorAll("#act-seg button"), function(b){
       b.addEventListener("click", function(){ period = b.getAttribute("data-p"); render(); });
     });

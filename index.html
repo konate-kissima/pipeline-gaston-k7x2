@@ -427,7 +427,7 @@
   }
 </style>
 
-<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 16h50</span></div>
+<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 17h00</span></div>
 <div class="wrap">
   <header class="top">
     <div>
@@ -601,7 +601,8 @@
           </div>
           <div class="msg-box" id="msg-box">
             <div class="msg-h">💬 Message au prospect (sans réponse)</div>
-            <textarea id="msg-tpl" rows="3" aria-label="Texte du message"></textarea>
+            <div class="date-row" style="margin-bottom:6px;"><label for="msg-prenom" style="font-size:12.5px;font-weight:600;">Prénom</label><input id="msg-prenom" type="text" placeholder="Prénom du prospect" style="flex:1;min-width:0"></div>
+            <textarea id="msg-tpl" rows="4" aria-label="Texte du message"></textarea>
             <div class="date-row" style="margin-top:6px;">
               <button type="button" class="btn btn-primary btn-sm" id="btn-msg-wa">WhatsApp</button>
               <button type="button" class="btn btn-ghost btn-sm" id="btn-msg-sms">SMS</button>
@@ -1506,6 +1507,7 @@
     els.drawerTitle.textContent = p ? p.full_name || "Prospect" : "Nouveau prospect";
     els.btnDelete.hidden = !p;
     FIELD_IDS.forEach(function(f){ setField(f, p ? p[f] : ""); });
+    resetMsg(p ? p.full_name : "");
     setField("phone", p ? fmtTel(p.phone) : "");
     setField("notes", p ? notesToDisplay(p.notes) : "");
     document.getElementById("fld-notes").scrollTop = 0;
@@ -1676,14 +1678,21 @@
   els.btnAddRelance.addEventListener("click", addRelance);
   document.getElementById("btn-call-today").addEventListener("click", function(){ applyCall(false); });
   document.getElementById("btn-call-noanswer").addEventListener("click", function(){ applyCall(true); });
-  var MSG_DEF = "Bonjour, c'est Kissima de Gaston Tiny Home Village. J'ai essayé de vous joindre au sujet de votre projet de tiny house. À quel moment puis-je vous rappeler ? À très vite.";
-  var msgTpl = document.getElementById("msg-tpl");
-  try{ msgTpl.value = localStorage.getItem("pl_msg_tpl") || MSG_DEF; }catch(e){ msgTpl.value = MSG_DEF; }
-  msgTpl.addEventListener("change", function(){ try{ localStorage.setItem("pl_msg_tpl", msgTpl.value); }catch(e){} });
+  var MSG_DEF = "Bonjour{prenom}, c'est Kissima de Gaston Tiny Home Village. J'ai essayé de vous joindre au sujet de votre projet de tiny house. À quel moment puis-je vous rappeler ? À très vite.";
+  var msgTpl = document.getElementById("msg-tpl"), msgPrenom = document.getElementById("msg-prenom"), msgDirty = false;
+  function guessPrenom(name){
+    var w = String(name || "").trim().split(/\s+/)[0] || "";
+    return w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : "";
+  }
+  function buildMsg(){ var pr = msgPrenom.value.trim(); return MSG_DEF.replace("{prenom}", pr ? " " + pr : ""); }
+  function resetMsg(name){ msgDirty = false; msgPrenom.value = guessPrenom(name); msgTpl.value = buildMsg(); }
+  window.resetMsg = resetMsg;
+  msgPrenom.addEventListener("input", function(){ if(!msgDirty) msgTpl.value = buildMsg(); });
+  msgTpl.addEventListener("input", function(){ msgDirty = true; });
   async function sendMsg(kind){
     var digits = normPhone(getField("phone"));
     if(!digits){ alert("Pas de numéro sur cette fiche."); return; }
-    var txt = msgTpl.value.trim() || MSG_DEF;
+    var txt = msgTpl.value.trim() || buildMsg();
     var url = kind === "wa" ? "https://web.whatsapp.com/send?phone=" + digits + "&text=" + encodeURIComponent(txt) : "sms:+" + digits + "&body=" + encodeURIComponent(txt);
     var existingP = state.editingId ? (state.prospects.find(function(x){return x.id === state.editingId;}) || {}) : {};
     var notesEl = document.getElementById("fld-notes");
@@ -1697,7 +1706,7 @@
     if(kind === "wa"){ window.open(url, "pl_whatsapp"); } else { window.location.href = url; }
   }
   document.getElementById("btn-msg-copy").addEventListener("click", function(){
-    var b = this, t = msgTpl.value.trim() || MSG_DEF;
+    var b = this, t = msgTpl.value.trim() || buildMsg();
     function ok(){ b.textContent = "Copié ✓"; setTimeout(function(){ b.textContent = "Copier le texte"; }, 1800); }
     if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok, function(){ msgTpl.select(); }); } else { msgTpl.select(); }
   });

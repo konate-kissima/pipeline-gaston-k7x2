@@ -412,6 +412,7 @@
   }
 </style>
 
+<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span></div>
 <div class="wrap">
   <header class="top">
     <div>
@@ -692,13 +693,19 @@
 #auth-ov input{font:inherit;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--ink)}
 #auth-ov button{font:inherit;font-weight:600;padding:10px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
 #auth-err{color:var(--st-perdu);font-size:12px;min-height:16px}
-#btn-logout{position:fixed;right:10px;bottom:8px;z-index:50;font:11px 'IBM Plex Mono',monospace;color:var(--ink-3);background:none;border:0;cursor:pointer;opacity:.7}
+#topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:1180px;margin:-8px auto 14px;min-height:26px}
+#btn-logout{font:12px 'IBM Plex Mono',monospace;color:var(--ink-3);background:none;border:1px solid transparent;border-radius:8px;padding:3px 8px;cursor:pointer}
+#btn-logout:hover{color:var(--ink);border-color:var(--border);background:var(--surface)}
+#btn-logout.confirm{color:var(--st-perdu);border-color:var(--st-perdu);background:var(--st-perdu-soft);font-weight:700}
+#sess-chip{font:12px 'IBM Plex Mono',monospace;color:var(--ink-2);display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sess-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--st-vente);display:inline-block}
+#sess-chip.paused .dot{background:var(--st-rappel)}
+#sess-chip.call .dot{background:var(--st-closing)}
 </style>
 <div id="auth-ov"><form id="auth-form"><h1>Pipeline Tiny House</h1>
 <input id="auth-email" type="email" placeholder="Email" autocomplete="username" required>
 <input id="auth-pass" type="password" placeholder="Mot de passe" autocomplete="current-password" required>
 <div id="auth-err"></div><button type="submit">Se connecter</button></form></div>
-<button id="btn-logout" hidden>Déconnexion</button>
 <script>
 (function(){
   var SB = supabase.createClient("https://tsgiijsgghkarawbbhqu.supabase.co","sb_publishable_20MUEHfBs_kSiOe5xPIOsw_3BmPniT_"); window.__SB = SB;
@@ -766,7 +773,17 @@
     if(r.error){ errEl.textContent = "Email ou mot de passe incorrect."; return; }
     gate(r.data.session);
   });
-  lo.addEventListener("click", async function(){ await SB.auth.signOut(); location.reload(); });
+  var loTimer = null;
+  lo.addEventListener("click", async function(){
+    if(!lo.classList.contains("confirm")){
+      lo.classList.add("confirm"); lo.textContent = "Confirmer la déconnexion ?";
+      loTimer = setTimeout(function(){ lo.classList.remove("confirm"); lo.textContent = "↩ Déconnexion"; }, 4000);
+      return;
+    }
+    clearTimeout(loTimer); lo.disabled = true; lo.textContent = "Envoi du récap…";
+    try{ if(window.__ACT && window.__ACT.endSession) await Promise.race([window.__ACT.endSession(), new Promise(function(r){ setTimeout(r, 5000); })]); }catch(e){ console.error(e); }
+    await SB.auth.signOut(); location.reload();
+  });
 })();
 </script>
 <script>
@@ -941,8 +958,10 @@
     { id:"all", label:"Tous les prospects", match:function(){ return true; } },
     { id:"leads", label:"Nouveaux leads", sort:"order-asc",
       match:function(p){ return p.status === "À contacter" && tentatives(p) === 0; } },
-    { id:"rappels", label:"Rappels à faire", sort:"callback-asc", statusHighlight:"Rappel programmé",
-      match:function(p){ return p.status === "Rappel programmé"; } },
+    { id:"retard", label:"⚠ Rappels en retard", sort:"callback-asc", alert:true,
+      match:function(p){ return isOverdue(p); } },
+    { id:"rappels", label:"Rappels programmés", sort:"callback-asc", statusHighlight:"Rappel programmé",
+      match:function(p){ return p.status === "Rappel programmé" && !isOverdue(p); } },
     { id:"relances", label:"Relances à risque (5+)", sort:"tentatives-desc",
       match:function(p){ return tentatives(p) >= 5 && p.status !== "Vente" && p.status !== "Perdu"; } },
     { id:"stats", label:"Statistiques", isStats:true, match:function(){ return false; } }
@@ -956,10 +975,11 @@
   function renderTabs(){
     els.viewTabs.innerHTML = TAB_DEFS.map(function(t){
       var active = state.viewTab === t.id;
-      var alert = (t.id === "rappels" && state.prospects.some(function(p){ return t.match(p) && isOverdue(p); }));
+      var alert = false;
       var countHtml = "";
       if(!t.isStats){
         var count = t.id === "all" ? state.prospects.length : state.prospects.filter(t.match).length;
+        alert = !!(t.alert && count > 0);
         countHtml = '<span class="tab-count">' + count + '</span>';
       }
       return '<button class="tab-btn' + (active?' active':'') + (alert?' alert':'') + '" data-tab="' + t.id + '">' +
@@ -1353,7 +1373,12 @@
       ? '<div class="chart-card"><div class="chart-title">Relances envoyées par semaine</div><div class="chart-empty">Aucune relance enregistrée pour l’instant — ce graphique se remplira au fur et à mesure des relances (automatiques ou ajoutées à la main dans une fiche).</div></div>'
       : renderWeekChart("Relances envoyées par semaine (10 dern. semaines)", relanceWeeks, "var(--chart-2)");
 
-    els.chartsWrap.innerHTML =
+    if(!document.getElementById("act-wrap")){
+      els.chartsWrap.innerHTML = '<div id="act-wrap"></div><h2 class="pipe-h">Pipeline</h2><div id="pipe-wrap"></div>';
+      if(window.__ACT && window.__ACT.mount) window.__ACT.mount(document.getElementById("act-wrap"));
+    } else if(window.__ACT && window.__ACT.onShow) { window.__ACT.onShow(); }
+    var pipeWrap = document.getElementById("pipe-wrap");
+    pipeWrap.innerHTML =
       '<div class="viz-kpis">' + kpisHtml + '</div>' +
       '<div class="charts-grid">' +
         renderHBarChart("Répartition du pipeline par statut", statusRows) +
@@ -1363,7 +1388,7 @@
       '</div>' +
       '<p class="chart-note">Survole une barre pour voir le détail exact. Les dates de leads au format JJ/MM/AAAA (saisies depuis la refonte du formulaire) et celles de l’import d’origine au format M/J/AA sont toutes les deux prises en compte — si une semaine te semble fausse, dis-le-moi et je vérifierai la fiche concernée.</p>';
 
-    wireTooltips(els.chartsWrap);
+    wireTooltips(pipeWrap);
   }
 
   // ---------- drawer ----------
@@ -1693,6 +1718,15 @@
     boot();
   }
 
+  // Passerelle pour les modules d'activité (pop-ups de rappel, statistiques, minuteur)
+  window.__PL = {
+    prospects: function(){ return state.prospects; },
+    ready: function(){ return state.ready; },
+    open: openDrawer,
+    showTab: function(id){ var b = document.querySelector('.tab-btn[data-tab="' + id + '"]'); if(b) b.click(); },
+    isOverdue: isOverdue, toIso: toIso, fmtFr: fmtFr, fmtTel: fmtTel, fmtHeure: fmtHeure, todayStr: todayStr, notesForList: notesForList, telHref: telHref, esc: esc
+  };
+
   if(window.claude && window.claude.hot){
     window.claude.hot.ready ? window.claude.hot.ready(start) : start();
   } else {
@@ -1775,4 +1809,554 @@
   window.__SB && window.__SB.auth.onAuthStateChange(function(){setTimeout(load,500);});
 })();
 </script>
+<style>
+.tab-btn.alert{color:var(--st-perdu)}
+.pipe-h{font-size:19px;margin:30px 0 12px}
+.act-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.act-top h2{font-size:19px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--ink-2);font:600 13px 'Public Sans',sans-serif;padding:7px 12px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--border)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.act-live{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-2)}
+.act-live b{color:var(--ink);font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+.act-live .dot{width:9px;height:9px;border-radius:50%;background:var(--st-vente);display:inline-block;margin-right:6px}
+.act-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+@media (max-width:1000px){.act-kpis{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.act-kpis{grid-template-columns:repeat(2,1fr)}}
+.act-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px;display:flex;flex-direction:column;gap:4px}
+.act-kpi .n{font-family:'Fraunces',serif;font-size:25px;font-weight:600;font-variant-numeric:tabular-nums}
+.act-kpi .l{font-size:12px;color:var(--ink-2);font-weight:600}
+.act-kpi .d{font-size:11.5px;color:var(--ink-3);font-family:'IBM Plex Mono',monospace}
+.act-kpi .d.up{color:var(--st-vente)}.act-kpi .d.down{color:var(--st-perdu)}
+.sb-chart{display:flex;align-items:flex-end;gap:5px;height:170px;padding-top:6px}
+.sb-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px}
+.sb-stack{width:100%;max-width:30px;display:flex;flex-direction:column;justify-content:flex-end;border-radius:4px 4px 0 0;overflow:hidden}
+.sb-n{font-size:10.5px;color:var(--ink-2);font-family:'IBM Plex Mono',monospace}
+.sb-l{font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink-2);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.act-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media (max-width:900px){.act-grid{grid-template-columns:1fr}}
+.feed{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
+.feed-i{display:flex;gap:10px;font-size:12.5px;padding:7px 9px;background:var(--surface-2);border-radius:9px}
+.feed-i .t{font-family:'IBM Plex Mono',monospace;color:var(--ink-3);flex:none}
+.stbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.stbl th{text-align:left;color:var(--ink-3);font-weight:600;padding:4px 6px;border-bottom:1px solid var(--border)}
+.stbl td{padding:6px;border-bottom:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+.pl-ov{position:fixed;inset:0;z-index:9000;background:rgba(20,17,12,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.pl-box{background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);width:100%;max-width:520px;max-height:86vh;overflow:auto;padding:20px}
+.pl-box h3{font-family:'Fraunces',serif;font-size:20px;margin:0 0 4px}
+.pl-box p.sub{margin:0 0 14px;color:var(--ink-2);font-size:13.5px}
+.pl-item{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--surface-2)}
+.pl-item .nm{font-weight:700;font-size:15px}
+.pl-item .wh{font-size:12.5px;color:var(--st-rappel);font-weight:700;margin:2px 0 6px}
+.pl-item .nt{font-size:12.5px;color:var(--ink-2);margin-bottom:8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.pl-row{display:flex;gap:8px;flex-wrap:wrap}
+.pl-btn{display:inline-flex;align-items:center;font:600 13px 'Public Sans',sans-serif;padding:8px 12px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none}
+.pl-btn.p{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.pl-list{font-size:13px;color:var(--ink-2);margin:0 0 12px;padding-left:18px}
+.pl-pause{position:fixed;inset:0;z-index:9500;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px}
+.pl-pause h2{font-size:26px}
+.pl-pause .big{font:700 16px 'Public Sans',sans-serif;padding:14px 26px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+#sess-chip button{font:600 11px 'IBM Plex Mono',monospace;border:1px solid var(--border);background:var(--surface);color:var(--ink-2);border-radius:7px;padding:2px 7px;cursor:pointer}
+</style>
+<script>
+(function(){
+  "use strict";
+  var SB = window.__SB; if(!SB) return;
+  function $(id){ return document.getElementById(id); }
+  function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+  function PL(){ return window.__PL; }
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function fmtDur(s){
+    s = Math.max(0, Math.round(s || 0));
+    if(s < 60) return s + " s";
+    if(s < 3600) return Math.floor(s/60) + " min";
+    return Math.floor(s/3600) + "h" + pad2(Math.floor((s%3600)/60));
+  }
+  function hhmm(d){ return pad2(d.getHours()) + "h" + pad2(d.getMinutes()); }
+  function ymd(d){ return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()); }
+  function uuid(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c){ var r = Math.random()*16|0; return (c === "x" ? r : (r&3|8)).toString(16); });
+  }
+  var mem = {};
+  function sget(k){ try{ return sessionStorage.getItem(k); }catch(e){ return mem[k] || null; } }
+  function sset(k,v){ try{ sessionStorage.setItem(k,v); }catch(e){ mem[k] = v; } }
+  function lget(k){ try{ return localStorage.getItem(k); }catch(e){ return mem["l"+k] || null; } }
+  function lset(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem["l"+k] = v; } }
+
+  // =====================================================================
+  // 1. SESSION : minuteur d'activité, pause, récap à la déconnexion
+  // =====================================================================
+  var IDLE = 600, ASK_TO = 180;
+  var S = {id:null, active:0, call:0, pause:0, state:"active", started:Date.now(), lastAct:Date.now(), lastTick:Date.now(),
+           lastPrompt:0, askAt:0, asking:false, prevState:"active", on:false, email:null, pauseSince:0};
+
+  async function beat(){
+    if(!S.id) return;
+    try{
+      var r = await SB.from("work_sessions").upsert({
+        id:S.id, user_email:S.email, started_at:new Date(S.started).toISOString(), last_seen:new Date().toISOString(),
+        active_seconds:Math.round(S.active), call_seconds:Math.round(S.call), pause_seconds:Math.round(S.pause), state:S.state
+      });
+      if(r.error) console.error("session beat", r.error.message);
+    }catch(e){ console.error(e); }
+  }
+  async function startSession(user){
+    if(S.on) return;
+    S.email = user && user.email || null;
+    var id = sget("pl_sid");
+    S.id = null;
+    if(id){
+      try{
+        var r = await SB.from("work_sessions").select("*").eq("id", id).maybeSingle();
+        if(r.data && !r.data.recap_sent){
+          S.id = id; S.active = r.data.active_seconds; S.call = r.data.call_seconds; S.pause = r.data.pause_seconds;
+          S.started = new Date(r.data.started_at).getTime();
+        }
+      }catch(e){}
+    }
+    if(!S.id){ S.id = uuid(); sset("pl_sid", S.id); S.started = Date.now(); S.active = S.call = S.pause = 0; }
+    S.state = "active"; S.lastAct = S.lastTick = Date.now(); S.lastPrompt = 0; S.on = true;
+    $("sess-chip").hidden = false;
+    await beat(); updateChip();
+  }
+  async function rotateSession(){
+    S.on = false; S.id = null; sset("pl_sid", ""); hideAsk(); hidePause();
+    await startSession({email:S.email});
+  }
+  async function endSession(){
+    if(!S.id) return "none";
+    S.on = false;
+    await beat();
+    var out = "ok";
+    try{ var r = await SB.rpc("session_recap", {sid:S.id}); out = r.data || (r.error && r.error.message) || "ok"; }catch(e){ out = String(e); }
+    sset("pl_sid", "");
+    return out;
+  }
+
+  function chipText(){
+    var lab = S.state === "paused" ? "En pause" : (S.state === "call" ? "En appel" : "Actif");
+    return lab + " " + fmtDur(S.active) + " · pause " + fmtDur(S.pause);
+  }
+  function updateChip(){
+    var c = $("sess-chip"); if(!c || c.hidden) return;
+    c.className = S.state === "paused" ? "paused" : (S.state === "call" ? "call" : "");
+    var btn = c.querySelector("button");
+    if(!btn){
+      c.textContent = "";
+      c.appendChild(el("span","dot")); c.appendChild(el("span","txt"));
+      btn = el("button", null, "Pause"); btn.type = "button";
+      btn.addEventListener("click", function(){ if(S.state === "paused") resume(); else manualPause(); });
+      c.appendChild(btn);
+    }
+    c.querySelector(".txt").textContent = chipText();
+    btn.textContent = S.state === "paused" ? "Reprendre" : "Pause";
+    var lv = $("act-live-t"); if(lv) lv.textContent = chipText();
+  }
+
+  function tick(){
+    if(!S.on) return;
+    var now = Date.now(), dt = (now - S.lastTick)/1000; S.lastTick = now;
+    if(dt > 1200){ rotateSession(); return; }
+    if(dt > 90) dt = 0;
+    if(S.asking){
+      if((now - S.askAt)/1000 >= ASK_TO) answerAsk("pause");
+      updateChip(); return;
+    }
+    if(S.state === "paused"){ S.pause += dt; }
+    else {
+      S.active += dt; if(S.state === "call") S.call += dt;
+      var ref = Math.max(S.lastAct, S.lastPrompt);
+      if((now - ref)/1000 >= IDLE) showAsk();
+    }
+    updateChip();
+  }
+  function onActivity(){
+    if(!S.on || S.asking) return;
+    S.lastAct = Date.now();
+    if(S.state === "call") S.state = "active";
+  }
+  ["mousemove","mousedown","keydown","scroll","touchstart","wheel"].forEach(function(ev){ window.addEventListener(ev, onActivity, {passive:true, capture:true}); });
+
+  var askEl = null, pauseEl = null;
+  function showAsk(){
+    if(S.asking) return;
+    S.asking = true; S.askAt = Date.now(); S.prevState = S.state;
+    askEl = el("div","pl-ov");
+    var box = el("div","pl-box");
+    box.appendChild(el("h3", null, "Toujours là ?"));
+    box.appendChild(el("p","sub","Aucune action depuis 10 minutes. Tu es encore en appel ? Sans réponse dans 3 minutes, je te mets en pause."));
+    var row = el("div","pl-row");
+    var b1 = el("button","pl-btn p","📞 Oui, en appel"); b1.type = "button"; b1.addEventListener("click", function(){ answerAsk("call"); });
+    var b2 = el("button","pl-btn","☕ Non, pause"); b2.type = "button"; b2.addEventListener("click", function(){ answerAsk("pause"); });
+    row.appendChild(b1); row.appendChild(b2); box.appendChild(row); askEl.appendChild(box);
+    document.body.appendChild(askEl);
+  }
+  function hideAsk(){ if(askEl && askEl.parentNode) askEl.parentNode.removeChild(askEl); askEl = null; S.asking = false; }
+  function answerAsk(choice){
+    if(!S.asking) return;
+    var now = Date.now(), elapsed = Math.min(ASK_TO, (now - S.askAt)/1000);
+    hideAsk();
+    S.lastTick = now;
+    if(choice === "call"){
+      S.active += elapsed; S.call += elapsed;
+      if(S.prevState !== "call") S.call += IDLE;
+      S.state = "call"; S.lastPrompt = now;
+    } else {
+      S.active = Math.max(0, S.active - IDLE);
+      if(S.prevState === "call") S.call = Math.max(0, S.call - IDLE);
+      S.pause += IDLE + elapsed;
+      enterPause(now - (IDLE + elapsed)*1000);
+    }
+    updateChip(); beat();
+  }
+  function manualPause(){ enterPause(Date.now()); updateChip(); beat(); }
+  function enterPause(sinceTs){
+    S.state = "paused"; S.pauseSince = sinceTs;
+    if(pauseEl) return;
+    pauseEl = el("div","pl-pause");
+    pauseEl.appendChild(el("h2", null, "☕ En pause"));
+    var sub = el("p","sub","Le minuteur est arrêté depuis " + hhmm(new Date(sinceTs)) + ". Reprends quand tu es de retour.");
+    sub.style.color = "var(--ink-2)";
+    pauseEl.appendChild(sub);
+    var b = el("button","big","Reprendre"); b.type = "button"; b.addEventListener("click", resume);
+    pauseEl.appendChild(b);
+    document.body.appendChild(pauseEl);
+  }
+  function hidePause(){ if(pauseEl && pauseEl.parentNode) pauseEl.parentNode.removeChild(pauseEl); pauseEl = null; }
+  function resume(){
+    hidePause(); S.state = "active"; S.lastAct = Date.now(); S.lastTick = Date.now(); updateChip(); beat();
+  }
+
+  setInterval(tick, 1000);
+  setInterval(beat, 20000);
+  document.addEventListener("visibilitychange", function(){ if(document.hidden) beat(); });
+
+  function authInit(){
+    SB.auth.getSession().then(function(s){ if(s.data.session) startSession(s.data.session.user); });
+    SB.auth.onAuthStateChange(function(ev, session){ if(session && ev !== "TOKEN_REFRESHED") startSession(session.user); });
+  }
+  authInit();
+
+  // =====================================================================
+  // 2. POP-UPS DE RAPPEL
+  // =====================================================================
+  var ACK = "pl_ack_v1", popEl = null, popSig = "", baseTitle = document.title, beeped = {};
+  function ackGet(){ try{ return JSON.parse(lget(ACK) || "{}"); }catch(e){ return {}; } }
+  function ackSet(o){ lset(ACK, JSON.stringify(o)); }
+  function hm2min(h){ var m = /^(\d{1,2}):(\d{2})/.exec(h || ""); return m ? (+m[1])*60 + (+m[2]) : null; }
+
+  function dueItems(){
+    var P = PL(); if(!P || !P.ready()) return [];
+    var today = P.todayStr(), d = new Date(), nowMin = d.getHours()*60 + d.getMinutes(), ack = ackGet(), out = [];
+    P.prospects().forEach(function(p){
+      if(p.status !== "Rappel programmé") return;
+      if(P.toIso(p.date_rappel_precise) !== today) return;
+      var rm = hm2min(p.heure_rappel); if(rm === null) return;
+      if(rm - nowMin > 5) return;
+      var lm = hm2min(p.heure_dernier_appel);
+      if(P.toIso(p.date_dernier_appel) === today && lm !== null && lm >= rm - 30) return;
+      var key = p.id + "|" + today + "|" + p.heure_rappel, a = ack[key];
+      if(a === "done" || (a && a > Date.now())) return;
+      out.push({p:p, key:key, rm:rm, diff:rm - nowMin});
+    });
+    out.sort(function(a,b){ return a.rm - b.rm; });
+    return out;
+  }
+  function closePop(){
+    if(popEl && popEl.parentNode) popEl.parentNode.removeChild(popEl);
+    popEl = null; popSig = ""; document.title = baseTitle;
+  }
+  function snooze(key, min){ var a = ackGet(); a[key] = Date.now() + min*60000; ackSet(a); }
+  function done(key){ var a = ackGet(); a[key] = "done"; ackSet(a); }
+  function beep(){
+    try{
+      var C = window.AudioContext || window.webkitAudioContext; if(!C) return;
+      var ctx = new C(), o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = 880; g.gain.value = 0.08; o.connect(g); g.connect(ctx.destination);
+      o.start(); setTimeout(function(){ o.stop(); ctx.close(); }, 350);
+    }catch(e){}
+  }
+  function when(diff){
+    if(diff > 0) return "Rappel prévu dans " + diff + " min";
+    if(diff === 0) return "C'est l'heure maintenant";
+    return "Rappel prévu il y a " + (-diff) + " min";
+  }
+  function checkDue(){
+    var P = PL(); if(!P) return;
+    var items = dueItems();
+    if(!items.length){ if(popEl && popEl.getAttribute("data-kind") === "due") closePop(); return; }
+    var sig = items.map(function(i){ return i.key + ":" + i.diff; }).join(",");
+    if(popEl && popEl.getAttribute("data-kind") === "due" && popSig === sig) return;
+    var newKey = items.some(function(i){ return !beeped[i.key]; });
+    items.forEach(function(i){ beeped[i.key] = 1; });
+    if(popEl) closePop();
+    popSig = sig;
+    popEl = el("div","pl-ov"); popEl.setAttribute("data-kind","due");
+    var box = el("div","pl-box");
+    box.appendChild(el("h3", null, items.length > 1 ? "🔔 " + items.length + " personnes à rappeler" : "🔔 C'est le moment de rappeler"));
+    box.appendChild(el("p","sub","Rappels programmés pour maintenant."));
+    items.forEach(function(it){
+      var p = it.p, card = el("div","pl-item");
+      card.appendChild(el("div","nm", p.full_name || "(sans nom)"));
+      card.appendChild(el("div","wh", when(it.diff) + " (" + P.fmtHeure(p.heure_rappel) + ")" + (p.date_rappel ? " · " + p.date_rappel : "")));
+      var note = P.notesForList(p.notes || "").split("\n")[0] || "";
+      if(note) card.appendChild(el("div","nt", note));
+      var row = el("div","pl-row");
+      if(p.phone){
+        var a = el("a","pl-btn p","📞 Appeler " + P.fmtTel(p.phone)); a.href = P.telHref(p.phone);
+        a.addEventListener("click", function(){ snooze(it.key, 30); setTimeout(checkDue, 50); });
+        row.appendChild(a);
+      }
+      var bo = el("button","pl-btn","Ouvrir la fiche"); bo.type = "button";
+      bo.addEventListener("click", function(){ snooze(it.key, 10); closePop(); P.open(p.id); setTimeout(checkDue, 50); });
+      var bl = el("button","pl-btn","Plus tard (10 min)"); bl.type = "button";
+      bl.addEventListener("click", function(){ snooze(it.key, 10); closePop(); setTimeout(checkDue, 50); });
+      var bd = el("button","pl-btn","Fait / ignorer"); bd.type = "button";
+      bd.addEventListener("click", function(){ done(it.key); closePop(); setTimeout(checkDue, 50); });
+      row.appendChild(bo); row.appendChild(bl); row.appendChild(bd);
+      card.appendChild(row); box.appendChild(card);
+    });
+    popEl.appendChild(box); document.body.appendChild(popEl);
+    document.title = "🔔 Rappel — " + baseTitle;
+    if(newKey) beep();
+  }
+
+  function dailySummary(){
+    var P = PL(); if(!P || !P.ready()) return;
+    var d = new Date(); if(d.getHours() < 6) return;
+    var today = P.todayStr();
+    if(lget("pl_daily") === today) return;
+    var todayList = [], late = [];
+    P.prospects().forEach(function(p){
+      if(P.isOverdue(p)) late.push(p);
+      else if(p.status === "Rappel programmé" && P.toIso(p.date_rappel_precise) === today) todayList.push(p);
+    });
+    lset("pl_daily", today);
+    if(!todayList.length && !late.length) return;
+    if(popEl) return;
+    todayList.sort(function(a,b){ return (hm2min(a.heure_rappel) == null ? 9999 : hm2min(a.heure_rappel)) - (hm2min(b.heure_rappel) == null ? 9999 : hm2min(b.heure_rappel)); });
+    popEl = el("div","pl-ov"); popEl.setAttribute("data-kind","daily");
+    var box = el("div","pl-box");
+    box.appendChild(el("h3", null, "Aujourd'hui"));
+    box.appendChild(el("p","sub", todayList.length + " rappel" + (todayList.length>1?"s":"") + " prévu" + (todayList.length>1?"s":"") + " · " + late.length + " en retard"));
+    function list(title, arr, withHour){
+      if(!arr.length) return;
+      box.appendChild(el("div","section-label", title));
+      var ul = el("ul","pl-list");
+      arr.slice(0,10).forEach(function(p){ ul.appendChild(el("li", null, (withHour && p.heure_rappel ? P.fmtHeure(p.heure_rappel) + " — " : "") + (p.full_name || "(sans nom)") + (!withHour && p.date_rappel_precise ? " (prévu le " + P.fmtFr(p.date_rappel_precise) + ")" : ""))); });
+      if(arr.length > 10) ul.appendChild(el("li", null, "… et " + (arr.length - 10) + " autres"));
+      box.appendChild(ul);
+    }
+    list("À rappeler aujourd'hui", todayList, true);
+    list("En retard", late, false);
+    var row = el("div","pl-row");
+    if(late.length){ var b1 = el("button","pl-btn p","Voir les rappels en retard"); b1.type = "button"; b1.addEventListener("click", function(){ closePop(); P.showTab("retard"); }); row.appendChild(b1); }
+    if(todayList.length){ var b2 = el("button","pl-btn" + (late.length ? "" : " p"),"Voir les rappels du jour"); b2.type = "button"; b2.addEventListener("click", function(){ closePop(); P.showTab("rappels"); }); row.appendChild(b2); }
+    var b3 = el("button","pl-btn","OK"); b3.type = "button"; b3.addEventListener("click", closePop); row.appendChild(b3);
+    box.appendChild(row); popEl.appendChild(box); document.body.appendChild(popEl);
+  }
+  setTimeout(function(){ dailySummary(); checkDue(); }, 4000);
+  setInterval(function(){ if(!popEl || popEl.getAttribute("data-kind") === "due") checkDue(); }, 15000);
+
+  // =====================================================================
+  // 3. STATISTIQUES EN TEMPS RÉEL + HISTORIQUE
+  // =====================================================================
+  var root = null, period = "today", D = {events:[], sessions:[], at:0}, fetching = false, pending = false, subscribed = false;
+  var PERIODS = [["today","Aujourd'hui"],["yesterday","Hier"],["7d","7 jours"],["30d","30 jours"],["month","Ce mois"]];
+
+  function range(per){
+    var now = new Date(), s = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    function add(d, n){ var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+    if(per === "today") return {from:s, to:add(s,1), pf:add(s,-1), pt:s, label:"hier", hourly:true};
+    if(per === "yesterday") return {from:add(s,-1), to:s, pf:add(s,-2), pt:add(s,-1), label:"la veille", hourly:true};
+    if(per === "7d") return {from:add(s,-6), to:add(s,1), pf:add(s,-13), pt:add(s,-6), label:"les 7 j précédents", hourly:false};
+    if(per === "30d") return {from:add(s,-29), to:add(s,1), pf:add(s,-59), pt:add(s,-29), label:"les 30 j précédents", hourly:false};
+    var m0 = new Date(now.getFullYear(), now.getMonth(), 1), pm = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    return {from:m0, to:add(s,1), pf:pm, pt:m0, label:"le mois précédent", hourly:false};
+  }
+
+  async function fetchAll(table, cols, tsCol, sinceIso){
+    var out = [], from = 0, step = 1000, pages = 0;
+    for(;;){
+      var r = await SB.from(table).select(cols).gte(tsCol, sinceIso).order(tsCol, {ascending:true}).range(from, from+step-1);
+      if(r.error) throw r.error;
+      out = out.concat(r.data); pages++;
+      if(r.data.length < step || pages >= 15) break;
+      from += step;
+    }
+    return out;
+  }
+  async function refresh(){
+    if(!root) return;
+    if(fetching){ pending = true; return; }
+    fetching = true;
+    try{
+      var since = new Date(Date.now() - 62*86400000).toISOString();
+      var res = await Promise.all([fetchAll("activity_log","at,kind,prospect_id,meta","at",since), fetchAll("work_sessions","id,started_at,last_seen,active_seconds,call_seconds,pause_seconds","started_at",since)]);
+      D = {events:res[0], sessions:res[1], at:Date.now()};
+      D.events.forEach(function(e){ e.t = new Date(e.at).getTime(); });
+      D.sessions.forEach(function(s){ s.t = new Date(s.started_at).getTime(); s.e = new Date(s.last_seen).getTime(); });
+    }catch(e){ console.error("stats", e); if(root){ var er = $("act-err"); if(er) er.textContent = "Chargement impossible : " + (e.message || e); } }
+    fetching = false; render();
+    if(pending){ pending = false; setTimeout(refresh, 800); }
+  }
+
+  function inRange(t, from, to){ return t >= from.getTime() && t < to.getTime(); }
+  function agg(from, to){
+    var ev = D.events.filter(function(e){ return inRange(e.t, from, to); });
+    var a = {cr:0, cn:0, rm:0, ra:0, adv:0, touched:{}, events:ev, act:0, call:0, pause:0, nSess:0};
+    ev.forEach(function(e){
+      var m = e.meta || {};
+      if(e.kind === "call_reached"){ a.cr++; a.touched[e.prospect_id] = 1; }
+      else if(e.kind === "call_noanswer"){ a.cn++; a.touched[e.prospect_id] = 1; }
+      else if(e.kind === "relance"){ if(m.by_app){ a.rm++; a.touched[e.prospect_id] = 1; } else a.ra++; }
+      else if(e.kind === "status_change" && m.by_app && /Devis envoyé|En closing|Vente/.test(m.to || "")) a.adv++;
+    });
+    D.sessions.forEach(function(s){
+      if(!inRange(s.t, from, to)) return;
+      var act = s.active_seconds, call = s.call_seconds, pause = s.pause_seconds;
+      if(S.id && s.id === S.id){ act = S.active; call = S.call; pause = S.pause; }
+      a.act += act; a.call += call; a.pause += pause; a.nSess++;
+    });
+    if(S.id && !D.sessions.some(function(s){ return s.id === S.id; }) && inRange(S.started, from, to)){ a.act += S.active; a.call += S.call; a.pause += S.pause; a.nSess++; }
+    a.calls = a.cr + a.cn; a.nTouched = Object.keys(a.touched).length;
+    return a;
+  }
+  function delta(cur, prev, label, unit){
+    var d = cur - prev;
+    if(!isFinite(d)) return "";
+    if(d === 0) return '<span class="d">= à ' + label + '</span>';
+    return '<span class="d ' + (d > 0 ? "up" : "down") + '">' + (d > 0 ? "▲ +" : "▼ ") + d + (unit || "") + " vs " + label + "</span>";
+  }
+  function kpi(n, l, d){ return '<div class="act-kpi"><span class="n">' + n + '</span><span class="l">' + l + "</span>" + (d || "") + "</div>"; }
+
+  function stackedChart(r, a){
+    var cols = [], max = 1, i;
+    if(r.hourly){
+      var hrs = {}; for(i = 7; i <= 21; i++) hrs[i] = {r:0, n:0};
+      a.events.forEach(function(e){
+        if(e.kind !== "call_reached" && e.kind !== "call_noanswer") return;
+        if(e.meta && e.meta.no_time) return;
+        var h = new Date(e.t).getHours(); if(!hrs[h]) hrs[h] = {r:0, n:0};
+        if(e.kind === "call_reached") hrs[h].r++; else hrs[h].n++;
+      });
+      Object.keys(hrs).sort(function(x,y){ return x - y; }).forEach(function(h){ cols.push({l:h + "h", r:hrs[h].r, n:hrs[h].n}); });
+    } else {
+      var days = {};
+      for(var d = new Date(r.from); d < r.to; d = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1)) days[ymd(d)] = {r:0, n:0, d:new Date(d)};
+      a.events.forEach(function(e){
+        if(e.kind !== "call_reached" && e.kind !== "call_noanswer") return;
+        var k = ymd(new Date(e.t)); if(!days[k]) return;
+        if(e.kind === "call_reached") days[k].r++; else days[k].n++;
+      });
+      Object.keys(days).sort().forEach(function(k){ var x = days[k]; cols.push({l:pad2(x.d.getDate()) + "/" + pad2(x.d.getMonth()+1), r:x.r, n:x.n}); });
+    }
+    cols.forEach(function(c){ max = Math.max(max, c.r + c.n); });
+    var total = cols.reduce(function(s,c){ return s + c.r + c.n; }, 0);
+    var body = total === 0 ? '<div class="chart-empty">Aucun appel sur cette période.</div>' :
+      '<div class="sb-chart">' + cols.map(function(c){
+        var tot = c.r + c.n, h = tot === 0 ? 2 : Math.max(6, Math.round(tot/max*100));
+        var tip = c.l + " : " + tot + " appel" + (tot>1?"s":"") + " (" + c.r + " jointe" + (c.r>1?"s":"") + ", " + c.n + " sans réponse)";
+        return '<div class="sb-col" title="' + tip + '"><div class="sb-n">' + (tot || "") + '</div><div class="sb-stack" style="height:' + h + '%">' +
+          (c.n ? '<div style="flex:' + c.n + ';background:var(--ink-3)"></div>' : "") +
+          (c.r ? '<div style="flex:' + c.r + ';background:var(--st-vente)"></div>' : "") + '</div><div class="sb-l">' + c.l + "</div></div>";
+      }).join("") + "</div>" +
+      '<div class="legend"><span><i style="background:var(--st-vente)"></i>Personne jointe</span><span><i style="background:var(--ink-3)"></i>Sans réponse</span></div>';
+    var untimed = a.events.filter(function(e){ return r.hourly && (e.kind === "call_reached" || e.kind === "call_noanswer") && e.meta && e.meta.no_time; }).length;
+    return '<div class="chart-card"><div class="chart-title">' + (r.hourly ? "Appels par heure" : "Appels par jour") + "</div>" + body +
+      (untimed ? '<div class="chart-note">' + untimed + " appel(s) historique(s) sans heure exacte ne figurent pas dans ce graphique.</div>" : "") + "</div>";
+  }
+
+  function bestHours(){
+    var from = new Date(Date.now() - 30*86400000), hrs = {};
+    D.events.forEach(function(e){
+      if((e.kind !== "call_reached" && e.kind !== "call_noanswer") || e.t < from.getTime() || (e.meta && e.meta.no_time)) return;
+      var h = new Date(e.t).getHours(); hrs[h] = hrs[h] || {r:0, n:0};
+      if(e.kind === "call_reached") hrs[h].r++; else hrs[h].n++;
+    });
+    var rows = Object.keys(hrs).map(function(h){ var x = hrs[h], t = x.r + x.n; return {h:+h, r:x.r, t:t, rate:t ? x.r/t : 0}; })
+      .filter(function(x){ return x.t >= 3; }).sort(function(a,b){ return a.h - b.h; });
+    var body;
+    if(!rows.length) body = '<div class="chart-empty">Pas encore assez d\'appels horodatés (il en faut au moins 3 par créneau).</div>';
+    else body = '<div class="hbar-list">' + rows.map(function(x){
+      var pct = Math.max(3, Math.round(x.rate*100));
+      return '<div class="hbar-row"><div class="hbar-label">' + x.h + 'h</div><div class="hbar-track" title="' + x.r + " jointes sur " + x.t + ' appels"><div class="hbar-fill" style="width:' + pct + '%;background:var(--st-vente)"></div></div><div class="hbar-value num">' + Math.round(x.rate*100) + "%</div></div>";
+    }).join("") + "</div>";
+    return '<div class="chart-card"><div class="chart-title">Taux de réponse par heure (30 derniers jours)</div>' + body + "</div>";
+  }
+
+  function feedHtml(){
+    var P = PL(), names = {};
+    if(P) P.prospects().forEach(function(p){ names[p.id] = p.full_name; });
+    var last = D.events.filter(function(e){ return e.kind !== "status_change" || (e.meta && e.meta.by_app); })
+      .filter(function(e){ return !(e.meta && e.meta.no_time); }).slice(-14).reverse();
+    if(!last.length) return '<div class="chart-empty">Aucune action récente.</div>';
+    var lab = {call_reached:"📞 Jointe", call_noanswer:"📵 Sans réponse", relance:"🔁 Relance", status_change:"📌 Statut"};
+    return '<div class="feed">' + last.map(function(e){
+      var d = new Date(e.t), when = (ymd(d) === ymd(new Date()) ? "" : pad2(d.getDate()) + "/" + pad2(d.getMonth()+1) + " ") + hhmm(d);
+      var extra = e.kind === "status_change" && e.meta ? " → " + (e.meta.to || "") : (e.kind === "relance" && e.meta && e.meta.canal ? " (" + e.meta.canal + ")" : "");
+      return '<div class="feed-i"><span class="t">' + when + "</span><span>" + lab[e.kind] + " — " + (P ? P.esc(names[e.prospect_id] || e.prospect_id || "?") : "") + (P ? P.esc(extra) : "") + "</span></div>";
+    }).join("") + "</div>";
+  }
+
+  function sessionsHtml(r){
+    var rows = D.sessions.filter(function(s){ return inRange(s.t, r.from, r.to); }).sort(function(a,b){ return b.t - a.t; });
+    if(!rows.length) return '<div class="chart-empty">Aucune session enregistrée sur cette période (le suivi du temps démarre aujourd\'hui).</div>';
+    return '<table class="stbl"><tr><th>Début</th><th>Fin</th><th>Actif</th><th>Pause</th><th>Appels</th></tr>' + rows.slice(0,12).map(function(s){
+      var act = s.active_seconds, pause = s.pause_seconds, end = s.e, live = S.id && s.id === S.id;
+      if(live){ act = S.active; pause = S.pause; end = Date.now(); }
+      var calls = D.events.filter(function(e){ return (e.kind === "call_reached" || e.kind === "call_noanswer") && e.t >= s.t && e.t <= end + 60000 && !(e.meta && e.meta.no_time); }).length;
+      var d0 = new Date(s.t), d1 = new Date(end);
+      return "<tr><td>" + pad2(d0.getDate()) + "/" + pad2(d0.getMonth()+1) + " " + hhmm(d0) + "</td><td>" + (live ? "en cours" : hhmm(d1)) + "</td><td>" + fmtDur(act) + "</td><td>" + fmtDur(pause) + "</td><td>" + calls + "</td></tr>";
+    }).join("") + "</table>";
+  }
+
+  function render(){
+    if(!root) return;
+    var r = range(period), a = agg(r.from, r.to), p = agg(r.pf, r.pt);
+    var rate = a.calls ? Math.round(a.cr/a.calls*100) : null, prate = p.calls ? Math.round(p.cr/p.calls*100) : null;
+    var perH = a.act >= 600 && a.calls ? (Math.round(a.calls*3600/a.act*10)/10).toString().replace(".", ",") : "—";
+    var h = '<div class="act-top"><h2>Activité</h2><div class="seg" id="act-seg">' + PERIODS.map(function(x){ return '<button type="button" data-p="' + x[0] + '" class="' + (x[0] === period ? "on" : "") + '">' + x[1] + "</button>"; }).join("") + "</div></div>";
+    h += '<div id="act-err" class="chart-note" style="color:var(--st-perdu)"></div>';
+    h += '<div class="act-live"><span><span class="dot"></span><b id="act-live-t">' + chipText() + "</b></span><span>Session démarrée à <b>" + hhmm(new Date(S.started)) + "</b></span><span>Mise à jour en direct</span></div>";
+    h += '<div class="act-kpis">' +
+      kpi(a.calls, "Appels passés", delta(a.calls, p.calls, r.label)) +
+      kpi(a.cr, "Personnes jointes", delta(a.cr, p.cr, r.label)) +
+      kpi(rate == null ? "—" : rate + " %", "Taux de réponse", prate == null || rate == null ? "" : delta(rate, prate, r.label, " pt")) +
+      kpi(a.cn, "Sans réponse") +
+      kpi(a.rm, "Relances manuelles", a.ra ? '<span class="d">+ ' + a.ra + " automatiques</span>" : "") +
+      kpi(a.nTouched, "Fiches travaillées") +
+      kpi(fmtDur(a.act), "Temps actif", '<span class="d">dont en appel ' + fmtDur(a.call) + "</span>") +
+      kpi(fmtDur(a.pause), "Temps de pause", '<span class="d">' + a.nSess + " session" + (a.nSess > 1 ? "s" : "") + "</span>") +
+      kpi(perH, "Appels / heure active") +
+      kpi(a.adv, "Avancées de statut", '<span class="d">devis, closing, vente</span>') + "</div>";
+    h += '<div class="act-grid">' + stackedChart(r, a) + bestHours() + "</div>";
+    h += '<div class="act-grid"><div class="chart-card"><div class="chart-title">Dernières actions</div>' + feedHtml() + '</div><div class="chart-card"><div class="chart-title">Sessions de travail</div>' + sessionsHtml(r) + "</div></div>";
+    root.innerHTML = h;
+    Array.prototype.forEach.call(root.querySelectorAll("#act-seg button"), function(b){
+      b.addEventListener("click", function(){ period = b.getAttribute("data-p"); render(); });
+    });
+  }
+
+  function mount(node){
+    root = node; render(); refresh();
+    if(!subscribed){
+      subscribed = true;
+      try{
+        SB.channel("act-live").on("postgres_changes", {event:"*", schema:"public", table:"activity_log"}, function(){ refresh(); })
+          .on("postgres_changes", {event:"*", schema:"public", table:"work_sessions"}, function(){ if(Date.now() - D.at > 8000) refresh(); }).subscribe();
+      }catch(e){ console.error(e); }
+      setInterval(function(){ if(root && root.offsetParent !== null) refresh(); }, 20000);
+    }
+  }
+  function onShow(){ if(root && Date.now() - D.at > 3000) refresh(); }
+
+  window.__ACT = {mount:mount, onShow:onShow, endSession:endSession};
+})();
+</script>
+
 </body></html>

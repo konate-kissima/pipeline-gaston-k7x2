@@ -427,7 +427,7 @@
   }
 </style>
 
-<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 16h25</span></div>
+<div id="topbar"><button id="btn-logout" hidden>↩ Déconnexion</button><span id="sess-chip" hidden></span><span style="font:10px 'IBM Plex Mono',monospace;color:var(--ink-3);margin-left:auto;padding-left:10px">v15/10 16h35</span></div>
 <div class="wrap">
   <header class="top">
     <div>
@@ -605,6 +605,7 @@
             <div class="date-row" style="margin-top:6px;">
               <button type="button" class="btn btn-primary btn-sm" id="btn-msg-wa">WhatsApp</button>
               <button type="button" class="btn btn-ghost btn-sm" id="btn-msg-sms">SMS</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-msg-copy">Copier le texte</button>
             </div>
           </div>
           <div class="hint"><b>Appelé aujourd'hui</b> = tu as eu la personne au téléphone. <b>Pas de réponse</b> = tentative d'appel sans retour, notée « à rappeler ». Dans les deux cas, chaque appel est ajouté aux notes avec la date et l'heure, et un rappel déjà passé est remis à zéro. Ça ne change pas les relances automatiques par email.</div>
@@ -1694,6 +1695,11 @@
     try{ if(state.db && state.editingId) await state.db.collection("prospects").doc(state.editingId).update({notes:nn}); }catch(e){ console.error(e); }
     window.location.href = url;
   }
+  document.getElementById("btn-msg-copy").addEventListener("click", function(){
+    var b = this, t = msgTpl.value.trim() || MSG_DEF;
+    function ok(){ b.textContent = "Copié ✓"; setTimeout(function(){ b.textContent = "Copier le texte"; }, 1800); }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok, function(){ msgTpl.select(); }); } else { msgTpl.select(); }
+  });
   document.getElementById("btn-msg-wa").addEventListener("click", function(){ sendMsg("wa"); });
   document.getElementById("btn-msg-sms").addEventListener("click", function(){ sendMsg("sms"); });
   Array.prototype.forEach.call(document.querySelectorAll(".clear-time"), function(b){
